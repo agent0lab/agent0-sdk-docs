@@ -1,0 +1,1041 @@
+---
+title: "Agent API"
+description: "Agent class reference"
+---
+Complete reference for the Agent class.
+
+## Properties
+
+All properties are read-only. Use setter methods to modify values.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+# Identity
+agent.agentId           # Optional[str]
+agent.agentURI          # Optional[str]
+agent.name              # str
+agent.description       # str
+agent.image             # Optional[str]
+
+# Status
+agent.active            # bool
+agent.x402support       # bool
+agent.updatedAt         # int
+
+# Wallet
+agent.walletAddress     # Optional[str]
+agent.walletChainId     # Optional[int]
+
+# Endpoints
+agent.mcpEndpoint       # Optional[str]
+agent.a2aEndpoint       # Optional[str]
+agent.ensEndpoint       # Optional[str]
+
+# Capabilities
+agent.mcpTools          # Optional[List[str]]
+agent.mcpPrompts        # Optional[List[str]]
+agent.mcpResources      # Optional[List[str]]
+agent.a2aSkills         # Optional[List[str]]
+
+# Lists
+agent.endpoints         # List[Endpoint]
+agent.trustModels       # List[TrustModel]
+agent.metadata          # Dict[str, Any]
+agent.owners            # List[str]
+agent.operators         # List[str]
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+import type { AgentId, Address, URI } from 'agent0-sdk';
+
+// Identity
+agent.agentId          // AgentId | undefined
+agent.agentURI         // URI | undefined
+agent.name             // string
+agent.description      // string
+agent.image            // URI | undefined
+
+// Status
+agent.active           // boolean
+agent.x402support      // boolean
+// Note: updatedAt is in registrationFile.updatedAt
+
+// Wallet
+agent.walletAddress    // Address | undefined
+agent.walletChainId    // number | undefined
+
+// Endpoints
+agent.mcpEndpoint      // string | undefined
+agent.a2aEndpoint       // string | undefined
+agent.ensEndpoint      // string | undefined
+
+// Capabilities
+agent.mcpTools         // string[] | undefined
+agent.mcpPrompts       // string[] | undefined
+agent.mcpResources     // string[] | undefined
+agent.a2aSkills        // string[] | undefined
+
+// Access via getRegistrationFile()
+const regFile = agent.getRegistrationFile();
+regFile.endpoints      // Endpoint[]
+regFile.trustModels    // (TrustModel | string)[]
+regFile.metadata       // Record
+regFile.owners         // Address[]
+regFile.operators      // Address[]
+```
+
+</TabItem>
+</Tabs>
+
+## Endpoint Methods
+
+### setMCP
+
+Set MCP endpoint.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.setMCP(
+    endpoint: str,
+    version: str = "2025-06-18",
+    auto_fetch: bool = True
+) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+
+const agent: Agent = await agent.setMCP(
+  endpoint: string,
+  version?: string,
+  autoFetch?: boolean
+);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is async and returns `Promise<this>` for chaining.
+
+### setA2A
+
+Set A2A endpoint.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.setA2A(
+    agentcard: str,
+    version: str = "0.30",
+    auto_fetch: bool = True
+) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+
+const agent: Agent = await agent.setA2A(
+  agentcard: string,
+  version?: string,
+  autoFetch?: boolean
+);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is async and returns `Promise<this>` for chaining.
+
+### setENS
+
+Set ENS endpoint.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.setENS(name: str, version: str = "1.0") -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+
+const agent: Agent = agent.setENS(
+  name: string,
+  version?: string
+);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is synchronous and returns `this` for chaining.
+
+### removeEndpoint
+
+Remove endpoint(s).
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.removeEndpoint(
+    type: Optional[EndpointType] = None,
+    value: Optional[str] = None
+) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { EndpointType } from 'agent0-sdk';
+
+// Remove specific endpoint type (wildcard over value)
+agent.removeEndpoint(EndpointType.MCP);
+
+// Remove by value (wildcard over type)
+agent.removeEndpoint({ value: 'https://old-endpoint.com' });
+
+// Remove by both type and value
+agent.removeEndpoint({ type: EndpointType.MCP, value: 'https://old-endpoint.com' });
+
+// Remove all endpoints
+agent.removeEndpoint();
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Manually filter endpoints from the registration file instead.
+
+### removeEndpoints
+
+Remove all endpoints.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.removeEndpoints() -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Note: This method is not available in TypeScript SDK
+// Manually clear endpoints from registrationFile instead:
+const regFile = agent.getRegistrationFile();
+regFile.endpoints = [];
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Manually clear endpoints from the registration file instead.
+
+## OASF Methods
+
+### addSkill
+
+Add a skill to the OASF endpoint.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.addSkill(
+    slug: str,
+    validate_oasf: bool = False
+) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const agent: Agent = agent.addSkill(
+  slug: string,
+  validateOASF?: boolean
+);
+```
+
+</TabItem>
+</Tabs>
+
+**Parameters:**
+
+- `slug` (str): The skill slug to add (e.g., `"natural_language_processing/summarization"`)
+- `validate_oasf` / `validateOASF` (bool, default: `False`): If `True`, validate the slug against the OASF taxonomy
+**Returns:** `Agent` for method chaining
+
+**Raises/Throws:** `ValueError` / `Error` if `validate_oasf=True` and the slug is not valid
+
+### removeSkill
+
+Remove a skill from the OASF endpoint.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.removeSkill(slug: str) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const agent: Agent = agent.removeSkill(slug: string);
+```
+
+</TabItem>
+</Tabs>
+
+**Parameters:**
+
+- `slug` (str): The skill slug to remove
+**Returns:** `Agent` for method chaining
+
+### addDomain
+
+Add a domain to the OASF endpoint.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.addDomain(
+    slug: str,
+    validate_oasf: bool = False
+) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const agent: Agent = agent.addDomain(
+  slug: string,
+  validateOASF?: boolean
+);
+```
+
+</TabItem>
+</Tabs>
+
+**Parameters:**
+
+- `slug` (str): The domain slug to add (e.g., `"finance_and_business/investment_services"`)
+- `validate_oasf` / `validateOASF` (bool, default: `False`): If `True`, validate the slug against the OASF taxonomy
+**Returns:** `Agent` for method chaining
+
+**Raises/Throws:** `ValueError` / `Error` if `validate_oasf=True` and the slug is not valid
+
+### removeDomain
+
+Remove a domain from the OASF endpoint.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.removeDomain(slug: str) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const agent: Agent = agent.removeDomain(slug: string);
+```
+
+</TabItem>
+</Tabs>
+
+**Parameters:**
+
+- `slug` (str): The domain slug to remove
+**Returns:** `Agent` for method chaining
+
+## Trust Model Methods
+
+### setTrust
+
+Set trust models using keywords.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.setTrust(
+    reputation: bool = False,
+    cryptoEconomic: bool = False,
+    teeAttestation: bool = False
+) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+
+const agent: Agent = agent.setTrust(
+  reputation?: boolean,
+  cryptoEconomic?: boolean,
+  teeAttestation?: boolean
+);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is synchronous and returns `this` for chaining.
+
+### trustModels
+
+Set trust models directly.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.trustModels(
+    models: List[Union[TrustModel, str]]
+) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Note: This method is not available in TypeScript SDK
+// Manually set trustModels on registrationFile instead:
+import type { TrustModel } from 'agent0-sdk';
+
+const regFile = agent.getRegistrationFile();
+regFile.trustModels = models; // (TrustModel | string)[]
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Manually set `trustModels` on the registration file instead.
+
+## Info Methods
+
+### updateInfo
+
+Update basic agent information.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.updateInfo(
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    image: Optional[str] = None
+) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+import type { URI } from 'agent0-sdk';
+
+const agent: Agent = agent.updateInfo(
+  name?: string,
+  description?: string,
+  image?: URI
+);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is synchronous and returns `this` for chaining.
+
+### setAgentWallet
+
+Set agent wallet **on-chain** with signature verification (ERC-8004 Jan 2026).
+
+Notes:
+
+- This is **on-chain only** and requires the agent to be **registered** (`agent.agentId` must exist).
+- `agentWallet` is a **reserved on-chain metadata key**:
+  - you **cannot** set it via `setMetadata()`
+  - you **cannot** set it during `register()`
+- EOAs use **EIP-712** signatures; smart wallets use **ERC-1271**.
+- On transfer, the contract resets `agentWallet` to the **zero address**; the new owner must re-verify it.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.setAgentWallet(
+    new_wallet: Address,
+    chainId: Optional[int] = None,
+    *,
+    new_wallet_signer: Optional[Union[str, Any]] = None,
+    deadline: Optional[int] = None,
+    signature: Optional[bytes] = None,
+) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+import type { Address } from 'agent0-sdk';
+
+const txHash: string = await agent.setAgentWallet(address as Address, {
+  // deadline?: number
+  // newWalletSigner?: string | ethers.Signer
+  // signature?: string | Uint8Array
+});
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is async and returns a transaction hash (or `""` if it was already set to that value).
+
+### setActive
+
+Set active status.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.setActive(active: bool) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+
+const agent: Agent = agent.setActive(active: boolean);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is synchronous and returns `this` for chaining.
+
+### setX402Support
+
+Set x402 support.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.setX402Support(x402Support: bool) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+
+const agent: Agent = agent.setX402Support(x402Support: boolean);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is synchronous and returns `this` for chaining.
+
+## Metadata Methods
+
+### setMetadata
+
+Set metadata.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.setMetadata(kv: Dict[str, Any]) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+
+const agent: Agent = agent.setMetadata(
+  kv: Record
+);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is synchronous and returns `this` for chaining.
+
+### getMetadata
+
+Get metadata.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+metadata = agent.getMetadata() -> Dict[str, Any]
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+
+const metadata: Record = agent.getMetadata();
+```
+
+</TabItem>
+</Tabs>
+
+### delMetadata
+
+Delete a metadata key.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.delMetadata(key: str) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+
+const agent: Agent = agent.delMetadata(key: string);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is synchronous and returns `this` for chaining.
+
+## Registration Methods
+
+### registerIPFS
+
+Register with IPFS (recommended).
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+reg_file = agent.registerIPFS() -> RegistrationFile
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+import type { RegistrationFile } from 'agent0-sdk';
+
+const regFile: RegistrationFile = await agent.registerIPFS();
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is async and returns `Promise<RegistrationFile>`.
+
+### register
+
+Register with direct URI.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+reg_file = agent.register(agentUri: str) -> RegistrationFile
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+import type { RegistrationFile, URI } from 'agent0-sdk';
+
+const regFile: RegistrationFile = await agent.registerHTTP(
+  agentUri: URI
+);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is named `registerHTTP` in TypeScript SDK and is async.
+
+### updateRegistration
+
+Update registration after edits.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+reg_file = agent.updateRegistration(
+    agentURI: Optional[str] = None,
+    idem: Optional[str] = None
+) -> RegistrationFile
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Note: This method is not available in TypeScript SDK
+// Use registerIPFS() again to update existing registration:
+const regFile = await agent.registerIPFS();
+// Or use setAgentUri() to update URI:
+await agent.setAgentUri(newUri);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Use `registerIPFS()` again to update an existing registration, or `setAgentUri()` to update the URI.
+
+### setAgentUri
+
+Set agent URI locally.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.setAgentUri(uri: str) -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+import type { URI } from 'agent0-sdk';
+
+await agent.setAgentUri(uri: URI);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is async and updates the URI on-chain (not just locally).
+
+## Ownership Methods
+
+### transfer
+
+Transfer ownership.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+result = agent.transfer(
+    to: str,
+    approve_operator: bool = False,
+    idem: Optional[str] = None
+) -> Dict
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+import type { Address, AgentId } from 'agent0-sdk';
+
+const result: {
+  txHash: string;
+  from: Address;
+  to: Address;
+  agentId: AgentId;
+} = await agent.transfer(
+  newOwner: Address
+);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** Method is async, only takes `newOwner` parameter (no `approve_operator` or `idem`), and returns typed object.
+
+**Parameters:**
+
+- `to` / `newOwner` (str / Address): Ethereum address of the new owner
+**Returns:**
+
+- Python: `Dict[str, Any]` containing:
+
+- `txHash` (str): Transaction hash
+- `from` (str): Previous owner address
+- `to` (str): New owner address
+- `agentId` (str): Agent ID that was transferred
+
+- TypeScript: Object with typed fields `{ txHash: string; from: Address; to: Address; agentId: AgentId }`
+**Raises/Throws:**
+
+- Python: `ValueError`: If agent is not registered, address is invalid, or caller is not the owner
+- TypeScript: `Error`: If agent is not registered, address is invalid, or caller is not the owner
+**Example:**
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+# Transfer agent to new owner
+new_owner = "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6"
+result = agent.transfer(new_owner)
+
+print(f"Transfer successful: {result['txHash']}")
+print(f"New owner: {result['to']}")
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Transfer agent to new owner
+const newOwner = "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6";
+const result = await agent.transfer(newOwner);
+
+console.log(`Transfer successful: ${result.txHash}`);
+console.log(`New owner: ${result.to}`);
+```
+
+</TabItem>
+</Tabs>
+
+**Important Notes:**
+
+- Only the current owner can transfer the agent
+- Agent URI, metadata, and all other data remain unchanged
+- Transfer is irreversible - ensure the new owner is correct
+- Invalid addresses and self-transfers are automatically rejected
+- Address validation includes checksum format verification
+### addOperator
+
+Add operator.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+result = agent.addOperator(
+    operator: str,
+    idem: Optional[str] = None
+) -> Dict
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Note: This method is not available in TypeScript SDK
+// Use SDK's web3Client to interact with Identity Registry directly
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Use the SDK’s `web3Client` to interact with the Identity Registry directly.
+
+### removeOperator
+
+Remove operator.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+result = agent.removeOperator(
+    operator: str,
+    idem: Optional[str] = None
+) -> Dict
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Note: This method is not available in TypeScript SDK
+// Use SDK's web3Client to interact with Identity Registry directly
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Use the SDK’s `web3Client` to interact with the Identity Registry directly.
+
+### activate
+
+Activate agent.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+reg_file = agent.activate(idem: Optional[str] = None) -> RegistrationFile
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Note: This method is not available in TypeScript SDK
+// Use setActive(true) and registerIPFS() instead:
+agent.setActive(true);
+const regFile = await agent.registerIPFS();
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Use `setActive(true)` and `registerIPFS()` instead.
+
+### deactivate
+
+Deactivate agent.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+reg_file = agent.deactivate(idem: Optional[str] = None) -> RegistrationFile
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Note: This method is not available in TypeScript SDK
+// Use setActive(false) and registerIPFS() instead:
+agent.setActive(false);
+const regFile = await agent.registerIPFS();
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Use `setActive(false)` and `registerIPFS()` instead.
+
+## Utility Methods
+
+### getRegistrationFile
+
+Get registration file.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+reg_file = agent.getRegistrationFile() -> RegistrationFile
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { Agent } from 'agent0-sdk';
+import type { RegistrationFile } from 'agent0-sdk';
+
+const regFile: RegistrationFile = agent.getRegistrationFile();
+```
+
+</TabItem>
+</Tabs>
+
+### toJson
+
+Convert to JSON.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+json_str = agent.toJson() -> str
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Note: This method is not available in TypeScript SDK
+// Use JSON.stringify() on registrationFile instead:
+const regFile = agent.getRegistrationFile();
+const jsonStr = JSON.stringify(regFile, null, 2);
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Use `JSON.stringify()` on the registration file instead.
+
+### saveToFile
+
+Save to file.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent.saveToFile(filePath: str) -> None
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+// Note: This method is not available in TypeScript SDK
+// Use Node.js fs module instead:
+import * as fs from 'fs';
+const regFile = agent.getRegistrationFile();
+fs.writeFileSync(filePath, JSON.stringify(regFile, null, 2));
+```
+
+</TabItem>
+</Tabs>
+
+**TypeScript Note:** This method is not available in the TypeScript SDK. Use Node.js `fs` module to write the registration file to disk.

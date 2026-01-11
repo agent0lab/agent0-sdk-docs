@@ -1,0 +1,91 @@
+/* Global Starlight customizations */
+
+/* Make the header site title (“Agent0 SDK”) red */
+a.site-title,
+a.site-title span {
+  color: #ff0000 !important;
+}
+
+a.site-title:hover,
+a.site-title:hover span {
+  color: #ff0000 !important;
+}
+
+/* Make the active sidebar entry highlight red instead of the default accent (blue) */
+.sidebar-content a[aria-current="page"] {
+  background-color: #ff0000 !important;
+  border-color: #ff0000 !important;
+  color: #ffffff !important;
+}
+
+.sidebar-content a[aria-current="page"]:hover {
+  background-color: #ff0000 !important;
+  color: #ffffff !important;
+}
+
+/* Tabs: make <Tabs>/<TabItem> blocks render as actual clickable tabs (client-side) */
+.ag0-tabs {
+  margin: 1rem 0;
+}
+
+.ag0-tabs__tablist {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.25rem; /* extra height so scrollbars (if forced visible) don't crowd content */
+  scrollbar-width: none; /* Firefox: hide scrollbar */
+  -ms-overflow-style: none; /* IE/Edge legacy: hide scrollbar */
+}
+
+.ag0-tabs__tablist::-webkit-scrollbar {
+  height: 0; /* WebKit: hide scrollbar but keep scroll */
+}
+
+.ag0-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap;
+  border: 0;
+  border-bottom: 2px solid var(--sl-color-gray-5);
+  background: transparent;
+  color: var(--sl-color-gray-3);
+  padding: 0.275rem 1.25rem;
+  margin: 0;
+  margin-bottom: -2px; /* pull active underline flush with the tablist border */
+  border-radius: 0;
+  cursor: pointer;
+  line-height: var(--sl-line-height-headings);
+  font-size: var(--sl-text-base);
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.ag0-tabs__tab.is-active,
+.ag0-tabs__tab[aria-selected="true"] {
+  color: var(--sl-color-white);
+  border-color: #ff0000;
+  font-weight: 600;
+}
+
+.ag0-tabs__tab:hover {
+  color: var(--sl-color-white);
+}
+
+.ag0-tabs__tab.is-active:hover,
+.ag0-tabs__tab[aria-selected="true"]:hover {
+  color: var(--sl-color-white);
+}
+
+.ag0-tabs__tab:focus-visible {
+  outline: 2px solid rgba(255, 0, 0, 0.6);
+  outline-offset: 2px;
+}
+
+.ag0-tabs__panel {
+  margin-top: 1rem;
+}
+

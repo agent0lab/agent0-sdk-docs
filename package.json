@@ -1,0 +1,21 @@
+{
+  "name": "agent0-docs-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "build:old-build": "astro build --outDir ../old_build",
+    "preview": "astro preview",
+    "import:old-build": "node ./scripts/import-old-build.mjs --src ../old_build --dest ./src/content/docs",
+    "publish:s3": "bash ./scripts/publish_to_s3.sh"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.36.1",
+    "astro": "5.15.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+

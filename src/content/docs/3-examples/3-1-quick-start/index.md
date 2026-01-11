@@ -1,0 +1,136 @@
+---
+title: "Quick Start"
+description: "Get started in minutes"
+---
+Complete example creating an agent, configuring it, registering, and retrieving it.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+from agent0_sdk import SDK
+import os
+
+# Initialize SDK
+# Subgraph automatically uses default URL - no configuration needed!
+sdk = SDK(
+    chainId=11155111,  # Ethereum Sepolia testnet
+    rpcUrl=os.getenv("RPC_URL"),
+    signer=os.getenv("PRIVATE_KEY"),
+    ipfs="pinata",
+    pinataJwt=os.getenv("PINATA_JWT")
+)
+
+# Create agent
+agent = sdk.createAgent(
+    name="My AI Agent",
+    description="An intelligent assistant for various tasks",
+    image="https://example.com/agent.png"
+)
+
+# Configure endpoints
+agent.setMCP("https://mcp.example.com/")
+agent.setA2A("https://a2a.example.com/agent-card.json")
+agent.setENS("myagent.eth")
+
+# Configure trust models
+agent.setTrust(reputation=True, cryptoEconomic=True)
+
+# Add metadata
+agent.setMetadata({
+    "version": "1.0.0",
+    "category": "ai-assistant"
+})
+
+# Add OASF skills and domains
+agent.addSkill("data_engineering/data_transformation_pipeline", validate_oasf=True)\
+     .addDomain("technology/data_science", validate_oasf=True)
+
+# Set status
+agent.setActive(True)
+agent.setX402Support(False)
+
+# Register on-chain with IPFS
+agent.registerIPFS()
+
+# Optional: set a dedicated agent wallet on-chain (signature-verified;
+# By default, agentWallet starts as the owner wallet; only set this if you want a different one.
+# agent.setAgentWallet("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", chainId=11155111)
+
+print(f"✅ Agent registered!")
+print(f"   ID: {agent.agentId}")
+print(f"   URI: {agent.agentURI}")
+
+# Retrieve agent
+retrieved = sdk.getAgent(agent.agentId)
+print(f"✅ Retrieved: {retrieved.name}")
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { SDK } from 'agent0-sdk';
+
+async function main() {
+  // Initialize SDK
+  // Subgraph automatically uses default URL - no configuration needed!
+  const sdk = new SDK({
+    chainId: 11155111, // Ethereum Sepolia testnet
+    rpcUrl: process.env.RPC_URL || '',
+    signer: process.env.PRIVATE_KEY, // Optional: private key for signing transactions
+    ipfs: 'pinata', // or 'filecoinPin' or 'node'
+    pinataJwt: process.env.PINATA_JWT, // Required if ipfs='pinata'
+  });
+
+  // Create agent
+  const agent = sdk.createAgent(
+    'My AI Agent',
+    'An intelligent assistant for various tasks',
+    'https://example.com/agent.png'
+  );
+
+  // Configure endpoints (async in TypeScript)
+  await agent.setMCP('https://mcp.example.com/');
+  await agent.setA2A('https://a2a.example.com/agent-card.json');
+  agent.setENS('myagent.eth');
+
+  // Configure trust models
+  agent.setTrust(true, true); // reputation=true, cryptoEconomic=true
+
+  // Add metadata
+  agent.setMetadata({
+    version: '1.0.0',
+    category: 'ai-assistant',
+  });
+
+// Add OASF skills and domains
+agent
+  .addSkill('data_engineering/data_transformation_pipeline', true)
+  .addDomain('technology/data_science', true);
+
+// Set status
+agent.setActive(true);
+agent.setX402Support(false);
+
+// Register on-chain with IPFS (async in TypeScript)
+const registrationFile = await agent.registerIPFS();
+
+// Optional: set a dedicated agent wallet on-chain (signature-verified;
+// By default, agentWallet starts as the owner wallet; only set this if you want a different one.
+// await agent.setAgentWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+
+  console.log('✅ Agent registered!');
+  console.log(`   ID: ${registrationFile.agentId}`);
+  console.log(`   URI: ${registrationFile.agentURI}`);
+
+  // Retrieve agent (async in TypeScript)
+  const retrieved = await sdk.getAgent(registrationFile.agentId!);
+  console.log(`✅ Retrieved: ${retrieved.name}`);
+}
+
+main().catch(console.error);
+```
+
+</TabItem>
+</Tabs>

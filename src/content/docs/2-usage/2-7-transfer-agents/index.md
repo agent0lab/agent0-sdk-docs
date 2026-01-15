@@ -53,7 +53,7 @@ import { SDK } from 'agent0-sdk';
 const sdk = new SDK({
   chainId: 11155111,
   rpcUrl: 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID',
-  signer: yourPrivateKey,
+  privateKey: yourPrivateKey,
 });
 
 // Load the agent (async in TypeScript)

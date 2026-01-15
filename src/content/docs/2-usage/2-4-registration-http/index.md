@@ -224,7 +224,7 @@ import * as fs from 'fs';
 const sdk = new SDK({
   chainId: 11155111,
   rpcUrl: 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID',
-  signer: privateKey,
+  privateKey: privateKey,
 });
 
 // 1. Configure agent

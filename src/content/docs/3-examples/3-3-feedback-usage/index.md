@@ -91,7 +91,7 @@ async function main() {
   const agentSdk = new SDK({
     chainId: 11155111,
     rpcUrl: process.env.RPC_URL || '',
-    signer: process.env.AGENT_PRIVATE_KEY,
+    privateKey: process.env.AGENT_PRIVATE_KEY,
     ipfs: 'pinata',
     pinataJwt: process.env.PINATA_JWT,
   });
@@ -99,7 +99,7 @@ async function main() {
   const clientSdk = new SDK({
     chainId: 11155111,
     rpcUrl: process.env.RPC_URL || '',
-    signer: process.env.CLIENT_PRIVATE_KEY,
+    privateKey: process.env.CLIENT_PRIVATE_KEY,
     ipfs: 'pinata',
     pinataJwt: process.env.PINATA_JWT,
   });

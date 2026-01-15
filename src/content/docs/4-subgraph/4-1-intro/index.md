@@ -31,7 +31,7 @@ results = sdk.searchAgents(name="AI")
 const sdk = new SDK({
   chainId: 11155111,
   rpcUrl: 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID',
-  signer: yourPrivateKey,
+  // read-only is fine for search; omit privateKey/walletProvider
 });
 
 // All search operations use the subgraph automatically (async in TypeScript)
@@ -68,7 +68,7 @@ sdk = SDK(
 const sdk = new SDK({
   chainId: 11155111,
   rpcUrl: RPC_URL,
-  signer: PRIVATE_KEY,
+  // read-only is fine for search; omit privateKey/walletProvider
   subgraphOverrides: {
     11155111: 'https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT',
   },

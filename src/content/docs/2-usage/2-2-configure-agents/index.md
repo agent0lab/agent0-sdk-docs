@@ -41,7 +41,7 @@ import { SDK } from 'agent0-sdk';
 const sdk = new SDK({
   chainId: 11155111,
   rpcUrl: 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID',
-  signer: yourPrivateKey,
+  privateKey: yourPrivateKey, // optional for read-only
   ipfs: 'pinata',
   pinataJwt: yourPinataJwt,
 });
@@ -304,14 +304,14 @@ await agent.registerIPFS();
 
 // --- EOA flow ---
 // The *new wallet* must sign the EIP-712 typed data.
-// If the new wallet is NOT the same as the SDK signer, pass `newWalletSigner`.
+// If the new wallet is NOT the same as the SDK signer, pass `newWalletPrivateKey`.
 const txHash = await agent.setAgentWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
-  newWalletSigner: NEW_WALLET_PRIVATE_KEY_OR_SIGNER, // must match 0x742d...
+  newWalletPrivateKey: NEW_WALLET_PRIVATE_KEY, // must match 0x742d...
   // deadline?: number, // optional; must be a short window
 });
 
 // --- One-wallet shortcut ---
-// If the SDK signer address IS the same as `newWallet`, you can omit newWalletSigner:
+// If the SDK signer address IS the same as `newWallet`, you can omit newWalletPrivateKey:
 // await agent.setAgentWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 
 // --- Smart contract wallet flow (ERC-1271) ---
@@ -338,7 +338,7 @@ Both SDKs build the EIP-712 typed data internally. Conceptually, the **new walle
 #### EOA
 
 - **EOA signing (Python)**: pass `new_wallet_signer=...` (private key / eth-account account) unless the SDK signer *is* the new wallet.
-- **EOA signing (TypeScript)**: pass `newWalletSigner` (private key or `ethers.Signer`) unless the SDK signer *is* the new wallet.
+- **EOA signing (TypeScript)**: pass `newWalletPrivateKey` unless the SDK signer *is* the new wallet.
 
 #### Smart contract wallet (ERC-1271)
 
@@ -347,58 +347,7 @@ For contract wallets, you must supply `signature` / `signature` bytes that your 
 - The **SDK still sends the on-chain transaction** (owner/operator).
 - The **signature payload must be produced externally** (wallet-specific). For example, a Safe typically requires collecting owner signatures and building the Safe-specific signature bytes.
 
-If you need the exact typed-data payload for external signing, use the SDK’s typed-data builder (advanced):
-
-<Tabs>
-<TabItem label="Python">
-
-```python
-# Advanced: build the EIP-712 typed data so an external wallet can sign it (ERC-1271 flow).
-# This uses the same structure the SDK signs internally for EOAs.
-import time
-
-agent_id_int = int(agent.agentId.split(":")[-1])
-owner = sdk.web3_client.call_contract(sdk.identity_registry, "ownerOf", agent_id_int)
-typed_data = sdk.web3_client.build_agent_wallet_set_typed_data(
-    agent_id=agent_id_int,
-    new_wallet=CONTRACT_WALLET_ADDRESS,
-    owner=owner,
-    deadline=int(time.time()) + 60,
-    verifying_contract=sdk.identity_registry.address,
-    chain_id=sdk.web3_client.chain_id,
-)
-
-# Send `typed_data` to your contract-wallet signing flow, then pass the resulting signature bytes:
-# agent.setAgentWallet(new_wallet=CONTRACT_WALLET_ADDRESS, signature=signature_bytes)
-```
-
-</TabItem>
-<TabItem label="TypeScript">
-
-```ts
-// Advanced: build the EIP-712 typed data so an external wallet can sign it (ERC-1271 flow).
-const tokenId = BigInt(agent.agentId!.split(':')[1]);
-const identityRegistry = sdk.getIdentityRegistry();
-const owner = await sdk.web3Client.callContract(identityRegistry, 'ownerOf', tokenId);
-const chainId = await sdk.chainId();
-const verifyingContract = await identityRegistry.getAddress();
-const deadline = BigInt((await sdk.web3Client.provider.getBlock('latest'))!.timestamp + 60);
-
-const { domain, types, message } = sdk.web3Client.buildAgentWalletSetTypedData({
-  agentId: tokenId,
-  newWallet: CONTRACT_WALLET_ADDRESS,
-  owner,
-  deadline,
-  chainId,
-  verifyingContract,
-});
-
-// Have your contract wallet produce a signature payload for (domain, types, message), then:
-// await agent.setAgentWallet(CONTRACT_WALLET_ADDRESS, { signature });
-```
-
-</TabItem>
-</Tabs>
+If you need an ERC-1271 signature, produce it with your wallet’s signing flow (Safe, etc.) and pass it as `{ signature }` in `setAgentWallet(...)`.
 ## OASF Skills and Domains
 
 Agents can advertise their capabilities using the Open Agentic Schema Framework (OASF) taxonomies. This provides standardized classifications for skills and domains, improving discoverability and interoperability.

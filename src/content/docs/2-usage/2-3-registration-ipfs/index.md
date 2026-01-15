@@ -37,7 +37,7 @@ sdk = SDK(
 const sdk = new SDK({
   chainId: 11155111,
   rpcUrl: 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID',
-  signer: privateKey,
+  privateKey: privateKey,
   ipfs: 'filecoinPin',
   filecoinPrivateKey: 'your-filecoin-private-key',
 });
@@ -70,7 +70,7 @@ sdk = SDK(
 const sdk = new SDK({
   chainId: 11155111,
   rpcUrl: 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID',
-  signer: privateKey,
+  privateKey: privateKey,
   ipfs: 'pinata',
   pinataJwt: 'your-pinata-jwt-token',
 });
@@ -101,7 +101,7 @@ sdk = SDK(
 const sdk = new SDK({
   chainId: 11155111,
   rpcUrl: '...',
-  signer: privateKey,
+  privateKey: privateKey,
   ipfs: 'node',
   ipfsNodeUrl: 'https://ipfs.infura.io:5001',
 });
@@ -111,6 +111,8 @@ const sdk = new SDK({
 </Tabs>
 
 ## Register Agent
+
+**Browser note:** you can run this flow client-side too—configure the SDK with `walletProvider` (EIP-1193) for writes. See [Browser wallets (ERC-6963)](/2-usage/2-8-browser-wallets/).
 
 <Tabs>
 <TabItem label="Python">

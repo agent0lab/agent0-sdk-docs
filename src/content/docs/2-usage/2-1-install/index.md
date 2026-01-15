@@ -16,7 +16,7 @@ description: "Install Agent0 SDK"
 
 - Node.js 22 or higher
 - npm or yarn package manager
-- Private key for signing transactions (or run in read-only mode)
+- For writes: configure either a **server-side** `privateKey` or a **browser** `walletProvider` (EIP-1193)
 - Access to an Ethereum RPC endpoint (e.g., Alchemy, Infura)
 - (Optional) IPFS provider account (Pinata, Filecoin, or local IPFS node)
 - Subgraph: Automatically configured with default URL (optional override for custom subgraph endpoints)
@@ -91,3 +91,4 @@ For enhanced functionality:
 
 - Configure your [Agent](/2-usage/2-2-configure-agents/)
 - Start with [Registration](/2-usage/2-3-registration-ipfs/)
+- Use wallets in the browser: [Browser wallets (ERC-6963)](/2-usage/2-8-browser-wallets/)

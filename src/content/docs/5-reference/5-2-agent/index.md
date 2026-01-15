@@ -514,7 +514,7 @@ import type { Address } from 'agent0-sdk';
 
 const txHash: string = await agent.setAgentWallet(address as Address, {
   // deadline?: number
-  // newWalletSigner?: string | ethers.Signer
+  // newWalletPrivateKey?: string
   // signature?: string | Uint8Array
 });
 ```
@@ -874,13 +874,13 @@ result = agent.addOperator(
 
 ```ts
 // Note: This method is not available in TypeScript SDK
-// Use SDK's web3Client to interact with Identity Registry directly
+// Use direct contract calls instead (see SDK API -> Advanced: direct contract calls)
 ```
 
 </TabItem>
 </Tabs>
 
-**TypeScript Note:** This method is not available in the TypeScript SDK. Use the SDK’s `web3Client` to interact with the Identity Registry directly.
+**TypeScript Note:** This method is not available in the TypeScript SDK. Use direct contract calls instead (see SDK API -> Advanced: direct contract calls).
 
 ### removeOperator
 
@@ -901,13 +901,13 @@ result = agent.removeOperator(
 
 ```ts
 // Note: This method is not available in TypeScript SDK
-// Use SDK's web3Client to interact with Identity Registry directly
+// Use direct contract calls instead (see SDK API -> Advanced: direct contract calls)
 ```
 
 </TabItem>
 </Tabs>
 
-**TypeScript Note:** This method is not available in the TypeScript SDK. Use the SDK’s `web3Client` to interact with the Identity Registry directly.
+**TypeScript Note:** This method is not available in the TypeScript SDK. Use direct contract calls instead (see SDK API -> Advanced: direct contract calls).
 
 ### activate
 

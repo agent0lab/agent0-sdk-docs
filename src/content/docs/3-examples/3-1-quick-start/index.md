@@ -78,7 +78,7 @@ async function main() {
   const sdk = new SDK({
     chainId: 11155111, // Ethereum Sepolia testnet
     rpcUrl: process.env.RPC_URL || '',
-    signer: process.env.PRIVATE_KEY, // Optional: private key for signing transactions
+    privateKey: process.env.PRIVATE_KEY, // Optional: private key for signing transactions
     ipfs: 'pinata', // or 'filecoinPin' or 'node'
     pinataJwt: process.env.PINATA_JWT, // Required if ipfs='pinata'
   });
@@ -134,3 +134,5 @@ main().catch(console.error);
 
 </TabItem>
 </Tabs>
+
+For browser usage (wallet discovery + signing), see [Browser wallets (ERC-6963)](/2-usage/2-8-browser-wallets/).

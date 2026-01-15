@@ -98,7 +98,7 @@ Other networks may be available in the ERC-8004 ecosystem, but are not enabled i
 
 **Admin Functions:**
 
-- `getIdentityRegistry() → address`
+- `getIdentityRegistry → address`
 - `owner() → address`
 - `transferOwnership(address newOwner)`
 - `renounceOwnership()`
@@ -120,7 +120,7 @@ Other networks may be available in the ERC-8004 ecosystem, but are not enabled i
 
 **Admin Functions:**
 
-- `getIdentityRegistry() → address`
+- `getIdentityRegistry → address`
 - `owner() → address`
 - `transferOwnership(address newOwner)`
 - `renounceOwnership()`

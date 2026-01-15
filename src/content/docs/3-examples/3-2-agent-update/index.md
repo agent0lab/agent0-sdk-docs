@@ -76,7 +76,7 @@ async function main() {
   const sdk = new SDK({
     chainId: 11155111, // Ethereum Sepolia
     rpcUrl: process.env.RPC_URL || 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID',
-    signer: process.env.PRIVATE_KEY ?? process.env.AGENT_PRIVATE_KEY, // Required for updates
+    privateKey: process.env.PRIVATE_KEY ?? process.env.AGENT_PRIVATE_KEY, // Required for updates
     ipfs: 'pinata',
     pinataJwt: process.env.PINATA_JWT,
   });

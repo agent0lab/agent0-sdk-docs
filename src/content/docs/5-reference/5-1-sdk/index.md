@@ -32,12 +32,15 @@ sdk = SDK(
 
 ```ts
 import { SDK } from 'agent0-sdk';
-import type { Wallet, Signer } from 'ethers';
 
 const sdk = new SDK({
   chainId: 11155111,
   rpcUrl: 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID',
-  signer: process.env.PRIVATE_KEY as string | Wallet | Signer | undefined, // Optional for read-only operations
+  // Optional for read-only operations
+  privateKey: process.env.PRIVATE_KEY,
+
+  // Browser alternative (EIP-1193):
+  // walletProvider,
   // registryOverrides?: Record<ChainId, Record<string, Address>>
   // subgraphUrl?: string
   // subgraphOverrides?: Record<ChainId, string>
@@ -48,6 +51,16 @@ const sdk = new SDK({
 </Tabs>
 
 **Note:** The `chainId` parameter sets the SDK’s default chain. When you provide an `agentId` without a `chainId` prefix, the SDK uses this default chain.
+
+**TypeScript note:** `signer` is still accepted as a backwards-compatible alias for `privateKey`.
+
+## Advanced: direct contract calls (TypeScript)
+
+The TypeScript SDK no longer exposes legacy registry helpers. If you need direct on-chain access:
+
+- Use `sdk.registries()` to get the registry addresses.
+- Use [`viem`](https://viem.sh/) directly (recommended) with a minimal ABI for the function(s) you need.
+- Alternatively, you can use the SDK’s exported `ViemChainClient` if you want a thin wrapper around common read/write operations.
 
 ## Agent Methods
 

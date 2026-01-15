@@ -1,5 +1,5 @@
 ---
-title: "Browser wallets (ERC-6963)"
+title: "Client-side usage"
 description: "Discover wallets in the browser and sign transactions via EIP-1193"
 ---
 

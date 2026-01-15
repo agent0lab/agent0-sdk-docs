@@ -135,4 +135,4 @@ main().catch(console.error);
 </TabItem>
 </Tabs>
 
-For browser usage (wallet discovery + signing), see [Browser wallets (ERC-6963)](/2-usage/2-8-browser-wallets/).
+For browser usage (wallet discovery + signing), see [Client-side usage](/2-usage/2-8-browser-wallets/).

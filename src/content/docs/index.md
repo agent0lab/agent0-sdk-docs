@@ -47,7 +47,7 @@ Ready to build? Let’s go!
 - [Registration](/2-usage/2-3-registration-ipfs/) - Register your agent on-chain
 - [Search](/2-usage/2-5-search/) - Discover other agents
 - [Feedback](/2-usage/2-6-use-feedback/) - Build reputation
-- [Browser wallets (ERC-6963)](/2-usage/2-8-browser-wallets/) - Use the SDK client-side with wallet discovery/signing
+- [Client-side usage](/2-usage/2-8-browser-wallets/) - Use the SDK in the browser with wallet discovery/signing (ERC-6963)
 
 For deeper understanding, explore:
 

@@ -5,9 +5,25 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SITE_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 ENV_FILE="${SITE_ROOT}/s3-publish.env"
+DOTENV_FILE="${SITE_ROOT}/.env"
 TOKEN_FILE="${SITE_ROOT}/.aws_web_identity_token"
 
 DEFAULT_BUCKET="sdk.ag0.xyz"
+
+#
+# Env loading order:
+# - Load .env first (optional)
+# - Load s3-publish.env second (optional) so it can override defaults intentionally
+#
+# Important: we unset empty vars later so empty entries don't override values coming from .env.
+#
+if [[ -f "${DOTENV_FILE}" ]]; then
+  # Note: .env must be valid shell syntax (KEY=VALUE).
+  # shellcheck disable=SC1090
+  set -a
+  source "${DOTENV_FILE}"
+  set +a
+fi
 
 if [[ -f "${ENV_FILE}" ]]; then
   # shellcheck disable=SC1090
@@ -29,6 +45,20 @@ unset_if_empty() {
 unset_if_empty AWS_REGION
 unset_if_empty AWS_DEFAULT_REGION
 unset_if_empty AWS_PROFILE
+unset_if_empty AWS_ACCESS_KEY_ID
+unset_if_empty AWS_SECRET_ACCESS_KEY
+unset_if_empty AWS_SESSION_TOKEN
+unset_if_empty AWS_ROLE_ARN
+unset_if_empty AWS_WEB_IDENTITY_JWT
+
+if [[ -z "${AWS_PROFILE:-}" && -z "${AWS_ACCESS_KEY_ID:-}" && -z "${AWS_WEB_IDENTITY_JWT:-}" ]]; then
+  echo "ERROR: No AWS credentials found in ${ENV_FILE} or ${DOTENV_FILE}."
+  echo "Set one of:"
+  echo "  - AWS_PROFILE"
+  echo "  - AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY (+ optional AWS_SESSION_TOKEN)"
+  echo "  - AWS_ROLE_ARN + AWS_WEB_IDENTITY_JWT"
+  exit 1
+fi
 
 BUCKET_NAME="${S3_BUCKET:-$DEFAULT_BUCKET}"
 BUCKET_URI="s3://${BUCKET_NAME}"

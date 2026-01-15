@@ -112,7 +112,7 @@ const sdk = new SDK({
 
 ## Register Agent
 
-**Browser note:** you can run this flow client-side too—configure the SDK with `walletProvider` (EIP-1193) for writes. See [Browser wallets (ERC-6963)](/2-usage/2-8-browser-wallets/).
+**Browser note:** you can run this flow client-side too—configure the SDK with `walletProvider` (EIP-1193) for writes. See [Client-side usage](/2-usage/2-8-browser-wallets/).
 
 <Tabs>
 <TabItem label="Python">

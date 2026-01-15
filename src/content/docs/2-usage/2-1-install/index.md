@@ -91,4 +91,4 @@ For enhanced functionality:
 
 - Configure your [Agent](/2-usage/2-2-configure-agents/)
 - Start with [Registration](/2-usage/2-3-registration-ipfs/)
-- Use wallets in the browser: [Browser wallets (ERC-6963)](/2-usage/2-8-browser-wallets/)
+- Client-side: [Client-side usage](/2-usage/2-8-browser-wallets/)

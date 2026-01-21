@@ -16,7 +16,7 @@ See [Models Reference](/5-reference/5-3-models/) for detailed ID format document
 
 ## Give Feedback
 
-Submit feedback on-chain. **Only `agentId` and `score` are required.**
+Submit feedback on-chain. **Only `agentId` and `value` are required.**
 
 Optionally, you can also include **additional on-chain fields** (`tag1`, `tag2`, `endpoint`).
 
@@ -27,7 +27,7 @@ Separately, if you want richer context (text/capability/skill/task/etc), you can
 **Mandatory on-chain fields:**
 
 - `agentId` - The agent’s ID
-- `score` - Rating from 0-100
+- `value` - Signed decimal reputation/trust value
 
 **Optional on-chain fields:**
 
@@ -52,10 +52,10 @@ Common `feedbackFile` fields:
 <TabItem label="Python">
 
 ```python
-# Minimal on-chain feedback (no file). Only agentId + score are required.
+# Minimal on-chain feedback (no file). Only agentId + value are required.
 feedback2 = sdk.giveFeedback(
     agentId="11155111:123",
-    score=85,
+    value=85,
     tag1="data_analyst",  # optional on-chain
     tag2="finance",       # optional on-chain
     endpoint="https://api.example.com/feedback",  # optional on-chain
@@ -66,7 +66,7 @@ feedback2 = sdk.giveFeedback(
 <TabItem label="TypeScript">
 
 ```ts
-// Minimal on-chain feedback (no file). Only agentId + score are required.
+// Minimal on-chain feedback (no file). Only agentId + value are required.
 const feedback2 = await sdk.giveFeedback(
   '11155111:123',
   85,
@@ -82,7 +82,7 @@ const feedback2 = await sdk.giveFeedback(
 ## Optional: Prepare a Feedback File (Rich Off-chain Fields)
 
 Use `prepareFeedbackFile()` to build an **optional off-chain** feedback payload when you need rich fields (text/context/capability/etc).
-On-chain fields like `score`, `tag1`, `tag2`, and `endpoint` are still passed directly to `giveFeedback(...)`.
+On-chain fields like `value`, `tag1`, `tag2`, and `endpoint` are still passed directly to `giveFeedback(...)`.
 
 <Tabs>
 <TabItem label="Python">
@@ -100,7 +100,7 @@ feedback_file = sdk.prepareFeedbackFile({
 # Submit feedback (on-chain fields + optional feedbackFile)
 feedback = sdk.giveFeedback(
     agentId="11155111:123",
-    score=85,
+    value=85,
     tag1="data_analyst",
     tag2="finance",
     endpoint="https://api.example.com/feedback",
@@ -145,7 +145,7 @@ const feedback = await sdk.giveFeedback(
 ```python
 # Read feedback by components (feedbackIndex is 0-based)
 feedback = sdk.getFeedback("11155111:123", "0xClient", 0)
-print(f"Score: {feedback.score}")
+print(f"Value: {feedback.value}")
 print(f"Tags: {feedback.tags}")
 ```
 
@@ -160,7 +160,7 @@ const feedback = await sdk.getFeedback(
   '0xClient', // clientAddress
   0 // feedbackIndex
 );
-console.log(`Score: ${feedback.score}`);
+console.log(`Value: ${feedback.value}`);
 console.log(`Tags: ${feedback.tags}`);
 ```
 
@@ -180,12 +180,12 @@ results = sdk.searchFeedback(
     capabilities=["tools"],
     skills=["python"],
     tags=["data_analyst"],
-    minScore=80,
-    maxScore=100
+    minValue=0,
+    maxValue=100
 )
 
 for fb in results:
-    print(f"{fb.score}/100: {fb.tags}")
+    print(f"{fb.value}: {fb.tags}")
 ```
 
 </TabItem>
@@ -201,11 +201,11 @@ const results = await sdk.searchFeedback(
     capabilities: ['tools'],
     skills: ['python'],
   },
-  { minScore: 80, maxScore: 100 }
+  { minValue: 0, maxValue: 100 }
 );
 
 for (const fb of results) {
-  console.log(`${fb.score}/100: ${fb.tags.join(', ')}`);
+  console.log(`${fb.value}: ${fb.tags.join(', ')}`);
 }
 ```
 
@@ -225,9 +225,8 @@ summary = sdk.getReputationSummary("123")  # Uses SDK's default chain
 # Explicitly specify chain
 summary = sdk.getReputationSummary("11155111:123")  # ETH Sepolia
 
-print(f"Average score: {summary['averageScore']}")
+print(f"Average value: {summary['averageValue']}")
 print(f"Total feedback: {summary['totalFeedback']}")
-print(f"Score distribution: {summary['scoreDistribution']}")
 ```
 
 </TabItem>
@@ -235,16 +234,15 @@ print(f"Score distribution: {summary['scoreDistribution']}")
 
 ```ts
 // Get aggregated reputation (async in TypeScript)
-// Note: TypeScript version returns count and averageScore only
+// Note: TypeScript version returns count and averageValue only
 // Using default chain
 const summary = await sdk.getReputationSummary('123');  // Uses SDK's default chain
 
 // Explicitly specify chain
 const summary = await sdk.getReputationSummary('11155111:123');  // ETH Sepolia
 
-console.log(`Average score: ${summary.averageScore}`);
+console.log(`Average value: ${summary.averageValue}`);
 console.log(`Total feedback: ${summary.count}`);
-// Note: scoreDistribution is not available in TypeScript SDK
 ```
 
 </TabItem>
@@ -261,14 +259,14 @@ Find agents by reputation:
 # Find highly-rated agents
 # Single chain (uses SDK's default chain)
 results = sdk.searchAgentsByReputation(
-    minAverageScore=80,
+    minAverageValue=80,
     tags=["enterprise"],
     capabilities=["code_generation"]
 )
 
 # Single specific chain
 results = sdk.searchAgentsByReputation(
-    minAverageScore=80,
+    minAverageValue=80,
     tags=["enterprise"],
     capabilities=["code_generation"],
     chains=[11155111]  # ETH Sepolia
@@ -276,7 +274,7 @@ results = sdk.searchAgentsByReputation(
 
 # Multiple chains
 results = sdk.searchAgentsByReputation(
-    minAverageScore=80,
+    minAverageValue=80,
     tags=["enterprise"],
     capabilities=["code_generation"],
     chains=[11155111]
@@ -284,14 +282,14 @@ results = sdk.searchAgentsByReputation(
 
 # All supported chains
 results = sdk.searchAgentsByReputation(
-    minAverageScore=80,
+    minAverageValue=80,
     tags=["enterprise"],
     capabilities=["code_generation"],
     chains="all"  # Searches all configured chains
 )
 
 for agent in results['items']:
-    print(f"{agent.name}: {agent.extras['averageScore']}")
+    print(f"{agent.name}: {agent.extras['averageValue']}")
 ```
 
 </TabItem>
@@ -302,7 +300,7 @@ for agent in results['items']:
 // Single chain (uses SDK's default chain)
 const singleChainResults = await sdk.searchAgentsByReputation(
   {
-    minAverageScore: 80,
+    minAverageValue: 80,
     tags: ['enterprise'],
     capabilities: ['code_generation'],
   },
@@ -312,7 +310,7 @@ const singleChainResults = await sdk.searchAgentsByReputation(
 // Single specific chain
 const sepoliaResults = await sdk.searchAgentsByReputation(
   {
-    minAverageScore: 80,
+    minAverageValue: 80,
     tags: ['enterprise'],
     capabilities: ['code_generation'],
   },
@@ -322,7 +320,7 @@ const sepoliaResults = await sdk.searchAgentsByReputation(
 // Multiple chains
 const multiChainResults = await sdk.searchAgentsByReputation(
   {
-    minAverageScore: 80,
+    minAverageValue: 80,
     tags: ['enterprise'],
     capabilities: ['code_generation'],
   },
@@ -332,7 +330,7 @@ const multiChainResults = await sdk.searchAgentsByReputation(
 // All supported chains
 const allChainsResults = await sdk.searchAgentsByReputation(
   {
-    minAverageScore: 80,
+    minAverageValue: 80,
     tags: ['enterprise'],
     capabilities: ['code_generation'],
   },
@@ -340,7 +338,7 @@ const allChainsResults = await sdk.searchAgentsByReputation(
 );
 
 for (const agent of singleChainResults.items) {
-  console.log(`${agent.name}: ${agent.extras.averageScore}`);
+  console.log(`${agent.name}: ${agent.extras.averageValue}`);
 }
 ```
 
@@ -431,7 +429,7 @@ class Feedback:
     id: str                        # Unique feedback ID
     agentId: str                   # Agent identifier
     reviewer: str                  # Client address
-    score: float                   # 0-100 rating (MANDATORY)
+    value: float                   # Signed decimal value (MANDATORY)
     tags: Optional[List[str]]      # Categorization tags (optional)
     capability: Optional[str]      # MCP capability type (optional)
     name: Optional[str]            # MCP tool/resource/prompt name (optional)
@@ -444,7 +442,7 @@ class Feedback:
     isRevoked: bool                # Revocation status
 ```
 
-**Note:** Only `score` is mandatory when creating feedback. All other fields are optional and can be omitted for minimal on-chain-only feedback.
+**Note:** Only `value` is mandatory when creating feedback. All other fields are optional and can be omitted for minimal on-chain-only feedback.
 
 ## Next Steps
 

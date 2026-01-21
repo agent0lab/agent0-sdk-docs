@@ -43,7 +43,7 @@ Example GraphQL queries for the Agent0 subgraph.
       description
     }
     feedback(first: 5) {
-      score
+      value
       tag1
       tag2
       feedbackFile {
@@ -94,8 +94,8 @@ Example GraphQL queries for the Agent0 subgraph.
 ```graphql
 {
   agentStats(
-    where: { averageScore_gte: "80.0" }
-    orderBy: averageScore
+    where: { averageValue_gte: "80.0" }
+    orderBy: averageValue
     orderDirection: desc
     first: 10
   ) {
@@ -107,7 +107,7 @@ Example GraphQL queries for the Agent0 subgraph.
       }
       totalFeedback
     }
-    averageScore
+    averageValue
     totalFeedback
   }
 }
@@ -121,7 +121,7 @@ Example GraphQL queries for the Agent0 subgraph.
     where: { agent_: { id: "11155111:374" } }
     first: 10
   ) {
-    score
+    value
     tag1
     tag2
     feedbackFile {
@@ -191,7 +191,7 @@ Example GraphQL queries for the Agent0 subgraph.
       orderDirection: desc
       first: 10
     ) {
-      score
+      value
       tag1
       tag2
       clientAddress

@@ -44,7 +44,7 @@ feedback_file = client_sdk.prepareFeedbackFile(
 # Client submits feedback on-chain (and uploads feedback file if provided)
 feedback = client_sdk.giveFeedback(
     agentId=agent_id,
-    score=90,
+    value=90,
     tag1="data_analyst",
     tag2="finance",
     endpoint="https://api.example.com/feedback",
@@ -56,14 +56,14 @@ print(f"✅ Feedback submitted: {feedback.id}")  # (agentId, clientAddress, feed
 # Read single feedback (separate params; feedbackIndex is 0-based)
 agentId, clientAddress, feedbackIndex = feedback.id
 retrieved = agent_sdk.getFeedback(agentId, clientAddress, feedbackIndex)
-print(f"Score: {retrieved.score}")
+print(f"Value: {retrieved.value}")
 print(f"Tags: {retrieved.tags}")
 
 # Search feedback
 all_feedback = agent_sdk.searchFeedback(
     agentId=agent_id,
     tags=["data_analyst"],
-    minScore=80,
+    minValue=80,
 )
 print(f"Found {len(all_feedback)} positive feedback entries")
 
@@ -77,7 +77,7 @@ agent_sdk.appendResponse(
 
 # Get reputation
 summary = agent_sdk.getReputationSummary(agent_id)
-print(f"Average: {summary['averageScore']}")
+print(f"Average: {summary['averageValue']}")
 ```
 
 </TabItem>
@@ -107,7 +107,7 @@ async function main() {
   const agentId = '11155111:123';
 
   // Client prepares an OFF-CHAIN feedback file (optional).
-  // This does NOT include on-chain fields like score/tag1/tag2/endpoint.
+  // This does NOT include on-chain fields like value/tag1/tag2/endpoint.
   const feedbackFile = clientSdk.prepareFeedbackFile({
     text: undefined,
     capability: 'tools',
@@ -121,7 +121,7 @@ async function main() {
   // Submit feedback (async in TypeScript)
   const feedback = await clientSdk.giveFeedback(
     agentId,
-    90, // score
+    90, // value
     'data_analyst',
     'finance',
     'https://api.example.com/feedback',
@@ -138,7 +138,7 @@ async function main() {
     clientAddress,
     feedbackIndex
   );
-  console.log(`Score: ${retrieved.score}`);
+  console.log(`Value: ${retrieved.value}`);
   console.log(`Tags: ${retrieved.tags}`);
 
   // Search feedback (async in TypeScript)
@@ -149,13 +149,13 @@ async function main() {
       capabilities: ['tools'],
       skills: ['financial_analysis'],
     },
-    { minScore: 80 }
+    { minValue: 80 }
   );
   console.log(`Found ${allFeedback.length} positive feedbacks`);
 
   // Get reputation (async in TypeScript)
   const summary = await agentSdk.getReputationSummary(agentId);
-  console.log(`Average: ${summary.averageScore}`);
+  console.log(`Average: ${summary.averageValue}`);
 }
 
 main().catch(console.error);

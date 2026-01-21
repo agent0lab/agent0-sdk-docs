@@ -478,7 +478,7 @@ const agent: Agent = agent.updateInfo(
 
 **TypeScript Note:** Method is synchronous and returns `this` for chaining.
 
-### setAgentWallet
+### setWallet
 
 Set agent wallet **on-chain** with signature verification (ERC-8004 Jan 2026).
 
@@ -495,7 +495,7 @@ Notes:
 <TabItem label="Python">
 
 ```python
-agent = agent.setAgentWallet(
+agent = agent.setWallet(
     new_wallet: Address,
     chainId: Optional[int] = None,
     *,
@@ -512,7 +512,7 @@ agent = agent.setAgentWallet(
 import { Agent } from 'agent0-sdk';
 import type { Address } from 'agent0-sdk';
 
-const txHash: string = await agent.setAgentWallet(address as Address, {
+const txHash: string = await agent.setWallet(address as Address, {
   // deadline?: number
   // newWalletPrivateKey?: string
   // signature?: string | Uint8Array
@@ -523,6 +523,32 @@ const txHash: string = await agent.setAgentWallet(address as Address, {
 </Tabs>
 
 **TypeScript Note:** Method is async and returns a transaction hash (or `""` if it was already set to that value).
+
+### unsetWallet
+
+Unset agent wallet **on-chain** (ERC-8004 Jan 2026).
+
+Notes:
+
+- This is **on-chain only** and requires the agent to be **registered** (`agent.agentId` must exist).
+- This clears the reserved on-chain `agentWallet` value by sending the corresponding Identity Registry transaction.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+agent = agent.unsetWallet() -> Agent
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const txHash: string = await agent.unsetWallet();
+```
+
+</TabItem>
+</Tabs>
 
 ### setActive
 

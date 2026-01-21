@@ -12,7 +12,7 @@ Agent0 SDK provides a unified interface for managing agent identities, enabling 
 
 - Agent identities (ERC-721 NFTs)
 - Basic metadata (ENS name, verified agent wallet)
-- Feedback scores, tags and endpoints
+- Feedback values, tags and endpoints
 - Cryptographic commitments to off-chain files
 - Ownership and operator permissions
 
@@ -114,12 +114,12 @@ Agent0 SDK provides a unified interface for managing agent identities, enabling 
 
 - **(No feedback file)** → Skip `SDK.prepareFeedbackFile()`
 
-- Submit score/tags (and optional endpoint) on-chain only
+- Submit value/tags (and optional endpoint) on-chain only
 - No off-chain upload, no URI/hash commitment
 
 - **Submit to Blockchain** → SDK calls `ReputationRegistry.giveFeedback()`
 
-- Stores score/tags (and optional endpoint) directly on-chain
+- Stores value/tags (and optional endpoint) directly on-chain
 - Minimal gas costs
 
 **Option B: Hybrid**
@@ -135,7 +135,7 @@ Agent0 SDK provides a unified interface for managing agent identities, enabling 
 
 - **Submit Commitment** → SDK calls `ReputationRegistry.giveFeedback()`
 
-- Stores score, tags, and file commitment on-chain
+- Stores value, tags, and file commitment on-chain
 - Creates tamper-proof link to detailed feedback
 
 - **Index Feedback** → Subgraph automatically indexes
@@ -157,7 +157,7 @@ Agent0 SDK provides a unified interface for managing agent identities, enabling 
 - `agent.setMCP()`, `agent.setA2A()`, etc.
 - Updates `RegistrationFile` locally
 
-- **(Optional) Update Verified Agent Wallet** → Developer calls `agent.setAgentWallet(newWallet, ...)`
+- **(Optional) Update Verified Agent Wallet** → Developer calls `agent.setWallet(newWallet, ...)`
 
 - Signature-verified EIP-712 (EOA) / ERC-1271 (smart wallet) on-chain update (ERC-8004 Jan 2026)
 

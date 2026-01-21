@@ -271,7 +271,7 @@ Give feedback on-chain (optionally with an off-chain feedback file).
 ```python
 feedback = sdk.giveFeedback(
     agentId="11155111:123",
-    score=85,
+    value=85,
     tag1="data_analyst",
     tag2="finance",
     endpoint="https://api.example.com/feedback",
@@ -351,8 +351,8 @@ results = sdk.searchFeedback(
     skills=["financial_analysis"],
     tasks=None,
     names=None,
-    minScore=70,
-    maxScore=100,
+    minValue=0,
+    maxValue=100,
     include_revoked=False,
     first=100,
     skip=0,
@@ -377,7 +377,7 @@ const results: Feedback[] = await sdk.searchFeedback(
     names?: string[];
     includeRevoked?: boolean;
   },
-  options?: { minScore?: number; maxScore?: number }
+  options?: { minValue?: number; maxValue?: number }
 );
 ```
 
@@ -403,7 +403,7 @@ results = sdk.searchAgentsByReputation(
     skills: Optional[List[str]] = None,
     tasks: Optional[List[str]] = None,
     names: Optional[List[str]] = None,
-    minAverageScore: Optional[int] = None,
+    minAverageValue: Optional[float] = None,
     includeRevoked: bool = False,
     page_size: int = 50,
     cursor: Optional[str] = None,
@@ -428,7 +428,7 @@ const results: { items: AgentSummary[]; nextCursor?: string; meta?: {...} } = aw
     skills?: string[];
     tasks?: string[];
     names?: string[];
-    minAverageScore?: number;
+    minAverageValue?: number;
   },
   options?: { includeRevoked?: boolean; pageSize?: number; cursor?: string; sort?: string[]; chains?: number[] | 'all' }
 );
@@ -533,7 +533,7 @@ summary = sdk.getReputationSummary(
 import { SDK } from 'agent0-sdk';
 import type { AgentId } from 'agent0-sdk';
 
-const summary: { count: number; averageScore: number } = await sdk.getReputationSummary(
+const summary: { count: number; averageValue: number } = await sdk.getReputationSummary(
   agentId: AgentId,
   tag1?: string,
   tag2?: string

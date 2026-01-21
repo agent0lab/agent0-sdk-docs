@@ -84,11 +84,11 @@ console.log(`Found ${results.items.length} Python agents`);
 ```python
 # Top-rated agents
 results = sdk.searchAgentsByReputation(
-    minAverageScore=90,
+    minAverageValue=90,
     tags=["enterprise"]
 )
 for agent in results['items']:
-    print(f"{agent.name}: {agent.extras['averageScore']}")
+    print(f"{agent.name}: {agent.extras['averageValue']}")
 ```
 
 </TabItem>
@@ -98,10 +98,10 @@ for agent in results['items']:
 // Top-rated agents (async in TypeScript)
 const results = await sdk.searchAgentsByReputation({
   tags: ['enterprise'],
-  minAverageScore: 90,
+  minAverageValue: 90,
 });
 for (const agent of results.items) {
-  console.log(`${agent.name}: ${agent.extras.averageScore}`);
+  console.log(`${agent.name}: ${agent.extras.averageValue}`);
 }
 ```
 

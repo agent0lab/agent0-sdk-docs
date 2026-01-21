@@ -39,7 +39,7 @@ type Feedback {
   id: ID!                    # "chainId:agentId:clientAddress:feedbackIndex"
   agent: Agent!
   clientAddress: Bytes!
-  score: Int!
+  value: BigDecimal!
   tag1: String
   tag2: String
   feedbackUri: String
@@ -165,8 +165,7 @@ type AgentStats {
   id: ID!                    # "chainId:agentId"
   agent: Agent!
   totalFeedback: BigInt!
-  averageScore: BigDecimal!
-  scoreDistribution: [Int!]!
+  averageValue: BigDecimal!
   totalValidations: BigInt!
   completedValidations: BigInt!
   averageValidationScore: BigDecimal!

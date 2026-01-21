@@ -68,7 +68,7 @@ Feedback provides reputation signals and can be related to specific agent capabi
 
 Each feedback includes:
 
-- **Score** (0-100) - Rating of the agent *(mandatory)*
+- **Value** (signed decimal) - Reputation/trust value *(mandatory)*
 - **Tags** - Usually replicate key attributes (e.g., tool name “fetch_file”, skill “data_analysis”) *(optional)*
 - **Capability** - For MCP: which type (“prompts”, “resources”, “tools”) *(optional)*
 - **Name** - For MCP: specific tool/resource/prompt name *(optional)*
@@ -82,13 +82,13 @@ Feedback can be stored in two ways, giving developers flexibility:
 
 **Option 1: On-chain only (simplest)**
 
-- Store only score, tags and endpoint directly on-chain
+- Store only value, tags and endpoint directly on-chain
 - No off-chain feedback file needed
 - Maximum simplicity
 
 **Option 2: Hybrid on-chain/off-chain**
 
-- Store score, tags and endpoint on-chain
+- Store value, tags and endpoint on-chain
 - Store complete feedback data (context, capability details, payment proofs) in a feedback file on IPFS or HTTP
 - On-chain commitment (IPFS CID or HTTP URI + hash) ensures tamper-proof security
 - More detailed feedback with cryptographic guarantees

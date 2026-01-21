@@ -52,7 +52,8 @@ Other networks may be available in the ERC-8004 ecosystem, but are not enabled i
 
 - `agentWallet` is reserved and cannot be set via `setMetadata()` nor during `register()`.
 - It is updated via signature verification:
-  - `setAgentWallet(uint256 agentId, address newWallet, uint256 deadline, bytes signature)`
+  - via the SDK: `agent.setWallet(newWallet, ...)`
+  - via the SDK: `agent.unsetWallet()`
 
 **ERC-721 Functions:**
 
@@ -83,15 +84,15 @@ Other networks may be available in the ERC-8004 ecosystem, but are not enabled i
 
 **Feedback Functions:**
 
-- `giveFeedback(uint256 agentId, uint8 score, string tag1, string tag2, string endpoint, string feedbackURI, bytes32 feedbackHash)`
+- `giveFeedback(uint256 agentId, int256 value, uint8 valueDecimals, string tag1, string tag2, string endpoint, string feedbackURI, bytes32 feedbackHash)`
 - `revokeFeedback(uint256 agentId, uint64 feedbackIndex)`
 - `appendResponse(uint256 agentId, address clientAddress, uint64 feedbackIndex, string responseURI, bytes32 responseHash)`
 
 **Query Functions:**
 
-- `readFeedback(uint256 agentId, address clientAddress, uint64 feedbackIndex) → (uint8 score, string tag1, string tag2, bool isRevoked)`
-- `readAllFeedback(uint256 agentId, address[] clientAddresses, string tag1, string tag2, bool includeRevoked) → (address[] clientAddresses, uint64[] feedbackIndexes, uint8[] scores, string[] tag1s, string[] tag2s, bool[] revokedStatuses)`
-- `getSummary(uint256 agentId, address[] clientAddresses, string tag1, string tag2) → (uint64 count, uint8 averageScore)`
+- `readFeedback(uint256 agentId, address clientAddress, uint64 feedbackIndex) → (int256 value, uint8 valueDecimals, string tag1, string tag2, bool isRevoked)`
+- `readAllFeedback(uint256 agentId, address[] clientAddresses, string tag1, string tag2, bool includeRevoked) → (address[] clientAddresses, uint64[] feedbackIndexes, int256[] values, uint8[] valueDecimals, string[] tag1s, string[] tag2s, bool[] revokedStatuses)`
+- `getSummary(uint256 agentId, address[] clientAddresses, string tag1, string tag2) → (uint64 count, int256 summaryValue, uint8 summaryValueDecimals)`
 - `getClients(uint256 agentId) → address[]`
 - `getLastIndex(uint256 agentId, address clientAddress) → uint64`
 - `getResponseCount(uint256 agentId, address clientAddress, uint64 feedbackIndex, address[] responders) → uint64 count`
@@ -206,7 +207,8 @@ a `registrations` entry whose `agentRegistry` and `agentId` match the on-chain a
   "agentId": 22,
   "clientAddress": "eip155:1:{clientAddress}",
   "createdAt": "2025-09-23T12:00:00Z",
-  "score": 100,
+  "value": "100",
+  "valueDecimals": 0,
   "tag1": "foo",
   "tag2": "bar",
   "endpoint": "https://.../",
@@ -227,5 +229,9 @@ a `registrations` entry whose `agentRegistry` and `agentId` match the on-chain a
 
 ## Next Steps
 
+- **Breaking change (Jan 2026)**: ERC-8004 reputation no longer uses a single `score` field.
+  - **On-chain**: reputation is represented as `(value:int256, valueDecimals:uint8)` for signed decimal precision.
+  - **SDK**: Agent0 SDK APIs accept/return a decoded signed decimal `value`.
+  - **Off-chain**: feedback files use `value` + `valueDecimals` (not `score`).
 - Learn about [Agent Configuration](/2-usage/2-2-configure-agents/)
 - Explore [Usage Examples](/3-examples/3-1-quick-start/)

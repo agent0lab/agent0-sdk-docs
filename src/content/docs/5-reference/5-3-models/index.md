@@ -98,7 +98,6 @@ Feedback IDs uniquely identify individual feedback entries:
 - **Format**: `"agentId:clientAddress:feedbackIndex"`
 - **agentId**: The agent’s ID in `"chainId:agentId"` format (e.g., `"11155111:123"`) or just `"agentId"` (uses SDK’s default chain)
 - **clientAddress**: Ethereum address of feedback giver (normalized to lowercase)
-- **feedbackIndex**: Sequential index of feedback from this client to this agent (1-based)
 - **feedbackIndex**: Sequential index of feedback from this client to this agent (0-based)
 - **Example**: `"11155111:123:0x742d35cc6634c0532925a3b844bc9e7595f0beb7:0"`
 ## EndpointType
@@ -316,7 +315,7 @@ class Feedback:
     id: str                 # "agentId:clientAddress:index"
     agentId: AgentId
     reviewer: Address
-    score: Optional[float]
+    value: Optional[float]
     tags: List[str]
     text: Optional[str]
     context: Optional[Dict[str, Any]]
@@ -342,14 +341,14 @@ export interface Feedback {
   id: FeedbackIdTuple;  // [AgentId, Address, number]
   agentId: AgentId;
   reviewer: Address;
-  score?: number;  // 0-100
+  value?: number;
   tags: string[];
   text?: string;
   context?: Record;
   proofOfPayment?: Record;
   fileURI?: URI;
   createdAt: Timestamp;
-  answers: Array>;
+  answers: Array<Record>;
   isRevoked: boolean;
 
   // Off-chain only fields (not stored on blockchain)

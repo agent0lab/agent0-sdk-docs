@@ -250,29 +250,30 @@ agent.removeEndpoints();
 
 Per ERC-8004, `agentWallet` is **initially set to the agent owner’s address**.
 
-- **If you don’t call `setAgentWallet()`**: the agent wallet remains the **owner wallet** by default.
+- **If you don’t call `setWallet()`**: the agent wallet remains the **owner wallet** by default.
 - **When you should set a dedicated agent wallet**: only if you want the agent to use a **different** wallet than the owner (e.g., separation of duties, hot wallet vs cold owner, different chain wallet).
-- **After a transfer**: `agentWallet` is reset to the **zero address** and must be re-verified by the new owner by calling `setAgentWallet()`.
+- **After a transfer**: `agentWallet` is reset to the **zero address** and must be re-verified by the new owner by calling `setWallet()`.
 
 ### Setting a dedicated agent wallet (signature-verified)
 
 `agentWallet` is a **reserved on-chain** attribute. Setting it is signature-verified per ERC-8004.
 
-- **Who sends the transaction**: the SDK signer (typically the agent **owner** or an authorized **operator**) submits the on-chain `setAgentWallet` transaction.
+- **Who sends the transaction**: the SDK signer (typically the agent **owner** or an authorized **operator**) submits the on-chain transaction.
+- **Developer-facing SDK API**: `agent.setWallet(...)`.
 - **Who must sign the message**: the **new wallet** must authorize the change by signing the EIP-712 typed data (EOA), or by providing an ERC-1271-compatible signature payload (smart contract wallet).
 
 <Tabs>
 <TabItem label="Python">
 
 ```python
-# You must register the agent first, then call setAgentWallet() if you want a dedicated wallet
+# You must register the agent first, then call setWallet() if you want a dedicated wallet
 # different from the owner (the default effective wallet).
 agent.registerIPFS()
 
 # --- EOA flow ---
 # The *new wallet* must sign the EIP-712 typed data.
 # If the new wallet is NOT the same as the SDK signer, provide `new_wallet_signer`.
-agent.setAgentWallet(
+agent.setWallet(
     new_wallet="0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
     chainId=11155111,
     new_wallet_signer=NEW_WALLET_PRIVATE_KEY,  # private key for 0x742d...
@@ -281,14 +282,14 @@ agent.setAgentWallet(
 # --- One-wallet shortcut ---
 # If the SDK signer IS the same address as `new_wallet`, you can omit `new_wallet_signer`
 # and the SDK will auto-sign with its signer.
-# agent.setAgentWallet(new_wallet="0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", chainId=11155111)
+# agent.setWallet(new_wallet="0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", chainId=11155111)
 
 # --- Smart contract wallet flow (ERC-1271) ---
 # For contract wallets, the SDK cannot produce the wallet signature for you.
 # You must obtain `signature` bytes from your wallet’s signing mechanism and pass it in:
 #
 # signature_bytes = ...  # produced externally by the contract wallet (e.g., Safe)
-# agent.setAgentWallet(
+# agent.setWallet(
 #     new_wallet=CONTRACT_WALLET_ADDRESS,
 #     chainId=11155111,
 #     signature=signature_bytes,
@@ -299,31 +300,40 @@ agent.setAgentWallet(
 <TabItem label="TypeScript">
 
 ```ts
-// You must register the agent first, then call setAgentWallet().
+// You must register the agent first, then call setWallet().
 await agent.registerIPFS();
 
 // --- EOA flow ---
 // The *new wallet* must sign the EIP-712 typed data.
 // If the new wallet is NOT the same as the SDK signer, pass `newWalletPrivateKey`.
-const txHash = await agent.setAgentWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
+const txHash = await agent.setWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
   newWalletPrivateKey: NEW_WALLET_PRIVATE_KEY, // must match 0x742d...
   // deadline?: number, // optional; must be a short window
 });
 
 // --- One-wallet shortcut ---
 // If the SDK signer address IS the same as `newWallet`, you can omit newWalletPrivateKey:
-// await agent.setAgentWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+// await agent.setWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 
 // --- Smart contract wallet flow (ERC-1271) ---
 // Provide a signature payload produced by the contract wallet’s signing mechanism.
 // const signature = await yourContractWalletSignTypedData(...);
-// await agent.setAgentWallet(CONTRACT_WALLET_ADDRESS, { signature });
+// await agent.setWallet(CONTRACT_WALLET_ADDRESS, { signature });
 ```
 
 </TabItem>
 </Tabs>
 
 The wallet address is stored on-chain as the **reserved** `agentWallet` attribute and requires signature verification (ERC-8004).
+
+### Unsetting the verified agent wallet
+
+If you previously set a dedicated verified `agentWallet` and want to remove it (reverting to “unset” on-chain), use:
+
+- Python: `agent.unsetWallet()`
+- TypeScript: `await agent.unsetWallet()`
+
+This clears the agent’s on-chain `agentWallet` bytes.
 
 ### “Exactly what do I sign?” (EOA vs smart contract wallet)
 
@@ -347,7 +357,7 @@ For contract wallets, you must supply `signature` / `signature` bytes that your 
 - The **SDK still sends the on-chain transaction** (owner/operator).
 - The **signature payload must be produced externally** (wallet-specific). For example, a Safe typically requires collecting owner signatures and building the Safe-specific signature bytes.
 
-If you need an ERC-1271 signature, produce it with your wallet’s signing flow (Safe, etc.) and pass it as `{ signature }` in `setAgentWallet(...)`.
+If you need an ERC-1271 signature, produce it with your wallet’s signing flow (Safe, etc.) and pass it as `{ signature }` in `setWallet(...)`.
 ## OASF Skills and Domains
 
 Agents can advertise their capabilities using the Open Agentic Schema Framework (OASF) taxonomies. This provides standardized classifications for skills and domains, improving discoverability and interoperability.
@@ -733,7 +743,7 @@ agent.setX402Support(False)
 agent.registerIPFS()
 
 # Optional: set a dedicated agent wallet on-chain (signature-verified; ERC-8004)
-# agent.setAgentWallet("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", chainId=11155111)
+# agent.setWallet("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", chainId=11155111)
 
 # Now ready!
 print(f"Agent configured: {agent.name}")
@@ -778,7 +788,7 @@ agent.setX402Support(false);
 await agent.registerIPFS();
 
 // Optional: set a dedicated agent wallet on-chain (signature-verified; ERC-8004)
-// await agent.setAgentWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+// await agent.setWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 
 // Now ready!
 console.log(`Agent configured: ${agent.name}`);

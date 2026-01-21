@@ -55,7 +55,7 @@ agent.registerIPFS()
 
 # Optional: set a dedicated agent wallet on-chain (signature-verified;
 # By default, agentWallet starts as the owner wallet; only set this if you want a different one.
-# agent.setAgentWallet("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", chainId=11155111)
+# agent.setWallet("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", chainId=11155111)
 
 print(f"✅ Agent registered!")
 print(f"   ID: {agent.agentId}")
@@ -118,7 +118,7 @@ const registrationFile = await agent.registerIPFS();
 
 // Optional: set a dedicated agent wallet on-chain (signature-verified;
 // By default, agentWallet starts as the owner wallet; only set this if you want a different one.
-// await agent.setAgentWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+// await agent.setWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 
   console.log('✅ Agent registered!');
   console.log(`   ID: ${registrationFile.agentId}`);

@@ -53,13 +53,14 @@ Common `feedbackFile` fields:
 
 ```python
 # Minimal on-chain feedback (no file). Only agentId + value are required.
-feedback2 = sdk.giveFeedback(
+tx = sdk.giveFeedback(
     agentId="11155111:123",
     value=85,
     tag1="data_analyst",  # optional on-chain
     tag2="finance",       # optional on-chain
     endpoint="https://api.example.com/feedback",  # optional on-chain
 )
+feedback2 = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -67,13 +68,14 @@ feedback2 = sdk.giveFeedback(
 
 ```ts
 // Minimal on-chain feedback (no file). Only agentId + value are required.
-const feedback2 = await sdk.giveFeedback(
+const tx = await sdk.giveFeedback(
   '11155111:123',
   85,
   'data_analyst', // tag1 (optional on-chain)
   'finance', // tag2 (optional on-chain)
   'https://api.example.com/feedback' // endpoint (optional on-chain)
 );
+const { result: feedback2 } = await tx.waitConfirmed();
 ```
 
 </TabItem>
@@ -98,7 +100,7 @@ feedback_file = sdk.prepareFeedbackFile({
 })
 
 # Submit feedback (on-chain fields + optional feedbackFile)
-feedback = sdk.giveFeedback(
+tx = sdk.giveFeedback(
     agentId="11155111:123",
     value=85,
     tag1="data_analyst",
@@ -106,6 +108,7 @@ feedback = sdk.giveFeedback(
     endpoint="https://api.example.com/feedback",
     feedbackFile=feedback_file,  # optional
 )
+feedback = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -122,7 +125,7 @@ const feedbackFile = sdk.prepareFeedbackFile({
 });
 
 // Submit feedback (on-chain fields + optional feedbackFile)
-const feedback = await sdk.giveFeedback(
+const tx = await sdk.giveFeedback(
   '11155111:123',
   85,
   'data_analyst',
@@ -130,6 +133,7 @@ const feedback = await sdk.giveFeedback(
   'https://api.example.com/feedback',
   feedbackFile
 );
+const { result: feedback } = await tx.waitConfirmed();
 ```
 
 </TabItem>
@@ -186,6 +190,16 @@ results = sdk.searchFeedback(
 
 for fb in results:
     print(f"{fb.value}: {fb.tags}")
+
+# NEW: search feedback given by a reviewer wallet (across all agents; subgraph required)
+given = sdk.searchFeedback(
+    reviewers=["0x742d35cc6634c0532925a3b844bc9e7595f0beb7"]
+)
+
+# NEW: search feedback across multiple agents at once
+multi = sdk.searchFeedback(
+    agents=["11155111:123", "11155111:456", "11155111:789"]
+)
 ```
 
 </TabItem>
@@ -207,6 +221,16 @@ const results = await sdk.searchFeedback(
 for (const fb of results) {
   console.log(`${fb.value}: ${fb.tags.join(', ')}`);
 }
+
+// NEW: search feedback given by a reviewer wallet (across all agents; subgraph required)
+const given = await sdk.searchFeedback({
+  reviewers: ['0x742d35cc6634c0532925a3b844bc9e7595f0beb7'],
+});
+
+// NEW: search feedback across multiple agents at once
+const multi = await sdk.searchFeedback({
+  agents: ['11155111:123', '11155111:456', '11155111:789'],
+});
 ```
 
 </TabItem>
@@ -354,7 +378,7 @@ for (const agent of singleChainResults.items) {
 
 ```python
 # Agent responds to feedback with refund acknowledgment
-updated_feedback = sdk.appendResponse(
+tx = sdk.appendResponse(
     agentId="11155111:123",
     clientAddress=client_address,
     feedbackIndex=0,
@@ -365,6 +389,7 @@ updated_feedback = sdk.appendResponse(
         "timestamp": int(time.time())
     }
 )
+updated_feedback = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -376,7 +401,7 @@ updated_feedback = sdk.appendResponse(
 const responseUri = 'ipfs://QmExampleResponse'; // IPFS URI of response file
 const responseHash = '0x' + '00'.repeat(32); // Hash of response content
 
-const txHash = await sdk.appendResponse(
+const tx = await sdk.appendResponse(
   '11155111:123',
   clientAddress,
   0, // feedbackIndex
@@ -385,7 +410,8 @@ const txHash = await sdk.appendResponse(
     hash: responseHash,
   }
 );
-console.log(`Response appended. Transaction: ${txHash}`);
+await tx.waitConfirmed();
+console.log(`Response appended. Tx: ${tx.hash}`);
 ```
 
 </TabItem>
@@ -398,11 +424,11 @@ console.log(`Response appended. Transaction: ${txHash}`);
 
 ```python
 # Revoke feedback
-sdk.revokeFeedback(
+tx = sdk.revokeFeedback(
     agentId="11155111:123",
-    clientAddress=client_address,
     feedbackIndex=0
 )
+tx.wait_confirmed(timeout=180)
 ```
 
 </TabItem>
@@ -411,11 +437,12 @@ sdk.revokeFeedback(
 ```ts
 // Revoke feedback (async in TypeScript)
 // Note: clientAddress is automatically determined from the signer
-const txHash = await sdk.revokeFeedback(
+const tx = await sdk.revokeFeedback(
   '11155111:123',
   0 // feedbackIndex
 );
-console.log(`Feedback revoked. Transaction: ${txHash}`);
+await tx.waitConfirmed();
+console.log(`Feedback revoked. Tx: ${tx.hash}`);
 ```
 
 </TabItem>

@@ -269,14 +269,15 @@ Give feedback on-chain (optionally with an off-chain feedback file).
 <TabItem label="Python">
 
 ```python
-feedback = sdk.giveFeedback(
+tx = sdk.giveFeedback(
     agentId="11155111:123",
     value=85,
     tag1="data_analyst",
     tag2="finance",
     endpoint="https://api.example.com/feedback",
     feedbackFile=feedback_file,  # optional
-) -> Feedback
+) -> TransactionHandle[Feedback]
+feedback = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -284,9 +285,9 @@ feedback = sdk.giveFeedback(
 
 ```ts
 import { SDK } from 'agent0-sdk';
-import type { AgentId, Feedback, FeedbackFileInput } from 'agent0-sdk';
+import type { AgentId, Feedback, FeedbackFileInput, TransactionHandle } from 'agent0-sdk';
 
-const feedback: Feedback = await sdk.giveFeedback(
+const tx: TransactionHandle<Feedback> = await sdk.giveFeedback(
   agentId,
   85,
   'data_analyst',
@@ -294,6 +295,7 @@ const feedback: Feedback = await sdk.giveFeedback(
   'https://api.example.com/feedback',
   feedbackFile // optional: FeedbackFileInput
 );
+const { result: feedback } = await tx.waitConfirmed();
 ```
 
 </TabItem>
@@ -344,7 +346,8 @@ Search feedback with filters.
 
 ```python
 results = sdk.searchFeedback(
-    agentId="11155111:123",
+    agentId="11155111:123",  # optional
+    agents=None,             # optional: search across multiple agents
     reviewers=None,
     tags=["data_analyst"],
     capabilities=["tools"],
@@ -368,7 +371,8 @@ import type { AgentId, Address, Feedback } from 'agent0-sdk';
 
 const results: Feedback[] = await sdk.searchFeedback(
   filters: {
-    agentId: AgentId;
+    agentId?: AgentId;
+    agents?: AgentId[];
     tags?: string[];
     reviewers?: Address[];
     capabilities?: string[];
@@ -386,7 +390,14 @@ const results: Feedback[] = await sdk.searchFeedback(
 
 **Parameters:**
 
-- `agentId` (str / AgentId): Agent ID in format `"agentId"` (uses SDK’s default chain) or `"chainId:agentId"` (explicit chain)
+- `agentId` (str / AgentId, optional): Agent ID in format `"agentId"` (uses SDK’s default chain) or `"chainId:agentId"` (explicit chain)
+- `agents` (List[AgentId] / AgentId[], optional): Search across multiple agents (use `"chainId:agentId"` for cross-chain)
+- `reviewers` (List[Address] / Address[], optional): Reviewer wallet addresses (enables “all feedback given by a wallet” when used without `agentId`)
+
+**Notes:**
+
+- You must provide **at least one** filter (`agentId`/`agents`/`reviewers`/`tags`/etc.). Empty searches are rejected to avoid accidental global queries.
+- Reviewer-only searches require a configured **subgraph** (no on-chain fallback).
 ### searchAgentsByReputation
 
 Find agents by reputation.
@@ -464,18 +475,19 @@ result = sdk.revokeFeedback(
 
 ```ts
 import { SDK } from 'agent0-sdk';
-import type { AgentId } from 'agent0-sdk';
+import type { AgentId, TransactionHandle, Feedback } from 'agent0-sdk';
 
-const txHash: string = await sdk.revokeFeedback(
+const tx: TransactionHandle<Feedback> = await sdk.revokeFeedback(
   agentId: AgentId,
   feedbackIndex: number
 );
+await tx.waitConfirmed();
 ```
 
 </TabItem>
 </Tabs>
 
-**TypeScript Note:** Returns transaction hash string, not Feedback object.
+**TypeScript Note:** Returns a `TransactionHandle<Feedback>`.
 
 ### appendResponse
 
@@ -498,20 +510,21 @@ feedback = sdk.appendResponse(
 
 ```ts
 import { SDK } from 'agent0-sdk';
-import type { AgentId, Address, URI } from 'agent0-sdk';
+import type { AgentId, Address, URI, TransactionHandle, Feedback } from 'agent0-sdk';
 
-const txHash: string = await sdk.appendResponse(
+const tx: TransactionHandle<Feedback> = await sdk.appendResponse(
   agentId: AgentId,
   clientAddress: Address,
   feedbackIndex: number,
   response: { uri: URI; hash: string }
 );
+await tx.waitConfirmed();
 ```
 
 </TabItem>
 </Tabs>
 
-**TypeScript Note:** Returns transaction hash string, not Feedback object. Response parameter is an object with `uri` and `hash` properties.
+**TypeScript Note:** Returns a `TransactionHandle<Feedback>`. Response parameter is an object with `uri` and `hash` properties.
 
 ### getReputationSummary
 
@@ -556,10 +569,11 @@ Transfer agent ownership to a new address.
 <TabItem label="Python">
 
 ```python
-result = sdk.transferAgent(
+tx = sdk.transferAgent(
     agentId: str,
     newOwnerAddress: str
-) -> Dict[str, Any]
+) -> TransactionHandle[Dict[str, Any]]
+result = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -567,17 +581,18 @@ result = sdk.transferAgent(
 
 ```ts
 import { SDK } from 'agent0-sdk';
-import type { AgentId, Address } from 'agent0-sdk';
+import type { AgentId, Address, TransactionHandle } from 'agent0-sdk';
 
-const result: {
+const tx: TransactionHandle<{
   txHash: string;
   from: Address;
   to: Address;
   agentId: AgentId;
-} = await sdk.transferAgent(
+}> = await sdk.transferAgent(
   agentId: AgentId,
   newOwner: Address
 );
+const { result } = await tx.waitConfirmed();
 ```
 
 </TabItem>
@@ -608,10 +623,11 @@ const result: {
 
 ```python
 # Transfer agent using SDK method
-result = sdk.transferAgent(
+tx = sdk.transferAgent(
     agentId="11155111:123",
     newOwnerAddress="0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6"
 )
+result = tx.wait_confirmed(timeout=180).result
 
 print(f"Transfer successful: {result['txHash']}")
 print(f"New owner: {result['to']}")
@@ -622,10 +638,11 @@ print(f"New owner: {result['to']}")
 
 ```ts
 // Transfer agent using SDK method
-const result = await sdk.transferAgent(
+const tx = await sdk.transferAgent(
   "11155111:123",
   "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6"
 );
+const { result } = await tx.waitConfirmed();
 
 console.log(`Transfer successful: ${result.txHash}`);
 console.log(`New owner: ${result.to}`);

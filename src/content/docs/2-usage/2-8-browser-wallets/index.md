@@ -48,7 +48,8 @@ Any on-chain write requires a signer (a connected wallet in the browser):
 const sdk = await connectSdk();
 
 const agent = sdk.createAgent('My Agent', 'Browser-registered agent');
-const registrationFile = await agent.registerIPFS();
+const tx = await agent.registerIPFS();
+const { result: registrationFile } = await tx.waitConfirmed();
 console.log(registrationFile.agentId);
 ```
 

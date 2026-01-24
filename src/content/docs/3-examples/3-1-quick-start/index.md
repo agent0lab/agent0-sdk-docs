@@ -51,15 +51,16 @@ agent.setActive(True)
 agent.setX402Support(False)
 
 # Register on-chain with IPFS
-agent.registerIPFS()
+reg_tx = agent.registerIPFS()
+reg = reg_tx.wait_confirmed(timeout=180).result
 
 # Optional: set a dedicated agent wallet on-chain (signature-verified;
 # By default, agentWallet starts as the owner wallet; only set this if you want a different one.
 # agent.setWallet("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", chainId=11155111)
 
 print(f"✅ Agent registered!")
-print(f"   ID: {agent.agentId}")
-print(f"   URI: {agent.agentURI}")
+print(f"   ID: {reg.agentId}")
+print(f"   URI: {reg.agentURI}")
 
 # Retrieve agent
 retrieved = sdk.getAgent(agent.agentId)
@@ -114,7 +115,8 @@ agent.setActive(true);
 agent.setX402Support(false);
 
 // Register on-chain with IPFS (async in TypeScript)
-const registrationFile = await agent.registerIPFS();
+const tx = await agent.registerIPFS();
+const { result: registrationFile } = await tx.waitConfirmed();
 
 // Optional: set a dedicated agent wallet on-chain (signature-verified;
 // By default, agentWallet starts as the owner wallet; only set this if you want a different one.

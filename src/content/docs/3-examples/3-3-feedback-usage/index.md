@@ -42,7 +42,7 @@ feedback_file = client_sdk.prepareFeedbackFile(
 )
 
 # Client submits feedback on-chain (and uploads feedback file if provided)
-feedback = client_sdk.giveFeedback(
+tx = client_sdk.giveFeedback(
     agentId=agent_id,
     value=90,
     tag1="data_analyst",
@@ -50,6 +50,7 @@ feedback = client_sdk.giveFeedback(
     endpoint="https://api.example.com/feedback",
     feedbackFile=feedback_file,  # optional
 )
+feedback = tx.wait_confirmed(timeout=180).result
 
 print(f"✅ Feedback submitted: {feedback.id}")  # (agentId, clientAddress, feedbackIndex)
 
@@ -67,13 +68,20 @@ all_feedback = agent_sdk.searchFeedback(
 )
 print(f"Found {len(all_feedback)} positive feedback entries")
 
+# NEW: feedback given by a wallet (reviewer-only; across all agents; subgraph required)
+given_feedback = agent_sdk.searchFeedback(
+    reviewers=[clientAddress]
+)
+print(f"Found {len(given_feedback)} feedback entries written by {clientAddress}")
+
 # Append a response (agent acknowledges the feedback)
-agent_sdk.appendResponse(
+tx = agent_sdk.appendResponse(
     agentId=agentId,
     clientAddress=clientAddress,
     feedbackIndex=feedbackIndex,
     response={"text": "Thanks for the feedback!", "timestamp": 0},
 )
+tx.wait_confirmed(timeout=180)
 
 # Get reputation
 summary = agent_sdk.getReputationSummary(agent_id)
@@ -119,7 +127,7 @@ async function main() {
   });
 
   // Submit feedback (async in TypeScript)
-  const feedback = await clientSdk.giveFeedback(
+  const tx = await clientSdk.giveFeedback(
     agentId,
     90, // value
     'data_analyst',
@@ -128,6 +136,7 @@ async function main() {
     feedbackFile
   );
 
+  const { result: feedback } = await tx.waitConfirmed();
   console.log(`✅ Feedback submitted: ${feedback.id.join(':')}`);
 
   // Read single feedback (async in TypeScript)
@@ -144,7 +153,7 @@ async function main() {
   // Search feedback (async in TypeScript)
   const allFeedback = await agentSdk.searchFeedback(
     {
-    agentId,
+      agentId,
       tags: ['data_analyst'],
       capabilities: ['tools'],
       skills: ['financial_analysis'],
@@ -152,6 +161,12 @@ async function main() {
     { minValue: 80 }
   );
   console.log(`Found ${allFeedback.length} positive feedbacks`);
+
+  // NEW: feedback given by a wallet (reviewer-only; across all agents; subgraph required)
+  const givenFeedback = await agentSdk.searchFeedback({
+    reviewers: ['0x742d35cc6634c0532925a3b844bc9e7595f0beb7'],
+  });
+  console.log(`Found ${givenFeedback.length} feedback entries written by that wallet`);
 
   // Get reputation (async in TypeScript)
   const summary = await agentSdk.getReputationSummary(agentId);

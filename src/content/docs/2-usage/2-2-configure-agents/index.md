@@ -268,7 +268,8 @@ Per ERC-8004, `agentWallet` is **initially set to the agent owner’s address**.
 ```python
 # You must register the agent first, then call setWallet() if you want a dedicated wallet
 # different from the owner (the default effective wallet).
-agent.registerIPFS()
+tx = agent.registerIPFS()
+tx.wait_confirmed(timeout=180)
 
 # --- EOA flow ---
 # The *new wallet* must sign the EIP-712 typed data.
@@ -301,15 +302,17 @@ agent.setWallet(
 
 ```ts
 // You must register the agent first, then call setWallet().
-await agent.registerIPFS();
+const regTx = await agent.registerIPFS();
+await regTx.waitConfirmed();
 
 // --- EOA flow ---
 // The *new wallet* must sign the EIP-712 typed data.
 // If the new wallet is NOT the same as the SDK signer, pass `newWalletPrivateKey`.
-const txHash = await agent.setWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
+const tx = await agent.setWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
   newWalletPrivateKey: NEW_WALLET_PRIVATE_KEY, // must match 0x742d...
   // deadline?: number, // optional; must be a short window
 });
+if (tx) await tx.waitConfirmed();
 
 // --- One-wallet shortcut ---
 // If the SDK signer address IS the same as `newWallet`, you can omit newWalletPrivateKey:
@@ -740,7 +743,8 @@ agent.setActive(True)
 agent.setX402Support(False)
 
 # Register on-chain
-agent.registerIPFS()
+tx = agent.registerIPFS()
+tx.wait_confirmed(timeout=180)
 
 # Optional: set a dedicated agent wallet on-chain (signature-verified; ERC-8004)
 # agent.setWallet("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb", chainId=11155111)
@@ -785,7 +789,8 @@ agent.setActive(true);
 agent.setX402Support(false);
 
 // Register on-chain
-await agent.registerIPFS();
+const regTx = await agent.registerIPFS();
+await regTx.waitConfirmed();
 
 // Optional: set a dedicated agent wallet on-chain (signature-verified; ERC-8004)
 // await agent.setWallet('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');

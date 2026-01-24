@@ -502,7 +502,7 @@ agent = agent.setWallet(
     new_wallet_signer: Optional[Union[str, Any]] = None,
     deadline: Optional[int] = None,
     signature: Optional[bytes] = None,
-) -> Agent
+) -> Optional[TransactionHandle[Agent]]
 ```
 
 </TabItem>
@@ -510,19 +510,20 @@ agent = agent.setWallet(
 
 ```ts
 import { Agent } from 'agent0-sdk';
-import type { Address } from 'agent0-sdk';
+import type { Address, RegistrationFile, TransactionHandle } from 'agent0-sdk';
 
-const txHash: string = await agent.setWallet(address as Address, {
+const tx: TransactionHandle<RegistrationFile> | undefined = await agent.setWallet(address as Address, {
   // deadline?: number
   // newWalletPrivateKey?: string
   // signature?: string | Uint8Array
 });
+if (tx) await tx.waitConfirmed();
 ```
 
 </TabItem>
 </Tabs>
 
-**TypeScript Note:** Method is async and returns a transaction hash (or `""` if it was already set to that value).
+**TypeScript Note:** Method is async and returns a `TransactionHandle<RegistrationFile>` (or `undefined` if it was already set to that value).
 
 ### unsetWallet
 
@@ -537,14 +538,17 @@ Notes:
 <TabItem label="Python">
 
 ```python
-agent = agent.unsetWallet() -> Agent
+tx = agent.unsetWallet() -> Optional[TransactionHandle[Agent]]
 ```
 
 </TabItem>
 <TabItem label="TypeScript">
 
 ```ts
-const txHash: string = await agent.unsetWallet();
+import type { RegistrationFile, TransactionHandle } from 'agent0-sdk';
+
+const tx: TransactionHandle<RegistrationFile> | undefined = await agent.unsetWallet();
+if (tx) await tx.waitConfirmed();
 ```
 
 </TabItem>
@@ -687,7 +691,8 @@ Register with IPFS (recommended).
 <TabItem label="Python">
 
 ```python
-reg_file = agent.registerIPFS() -> RegistrationFile
+tx = agent.registerIPFS() -> TransactionHandle[RegistrationFile]
+reg_file = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -695,9 +700,10 @@ reg_file = agent.registerIPFS() -> RegistrationFile
 
 ```ts
 import { Agent } from 'agent0-sdk';
-import type { RegistrationFile } from 'agent0-sdk';
+import type { RegistrationFile, TransactionHandle } from 'agent0-sdk';
 
-const regFile: RegistrationFile = await agent.registerIPFS();
+const tx: TransactionHandle<RegistrationFile> = await agent.registerIPFS();
+const { result: regFile } = await tx.waitConfirmed();
 ```
 
 </TabItem>
@@ -713,7 +719,8 @@ Register with direct URI.
 <TabItem label="Python">
 
 ```python
-reg_file = agent.register(agentUri: str) -> RegistrationFile
+tx = agent.register(agentUri: str) -> TransactionHandle[RegistrationFile]
+reg_file = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -721,11 +728,12 @@ reg_file = agent.register(agentUri: str) -> RegistrationFile
 
 ```ts
 import { Agent } from 'agent0-sdk';
-import type { RegistrationFile, URI } from 'agent0-sdk';
+import type { RegistrationFile, TransactionHandle, URI } from 'agent0-sdk';
 
-const regFile: RegistrationFile = await agent.registerHTTP(
+const tx: TransactionHandle<RegistrationFile> = await agent.registerHTTP(
   agentUri: URI
 );
+const { result: regFile } = await tx.waitConfirmed();
 ```
 
 </TabItem>
@@ -741,10 +749,10 @@ Update registration after edits.
 <TabItem label="Python">
 
 ```python
-reg_file = agent.updateRegistration(
+tx_or_file = agent.updateRegistration(
     agentURI: Optional[str] = None,
     idem: Optional[str] = None
-) -> RegistrationFile
+) -> Union[RegistrationFile, TransactionHandle[RegistrationFile]]
 ```
 
 </TabItem>
@@ -753,7 +761,8 @@ reg_file = agent.updateRegistration(
 ```ts
 // Note: This method is not available in TypeScript SDK
 // Use registerIPFS() again to update existing registration:
-const regFile = await agent.registerIPFS();
+const tx = await agent.registerIPFS();
+const { result: regFile } = await tx.waitConfirmed();
 // Or use setAgentUri() to update URI:
 await agent.setAgentUri(newUri);
 ```
@@ -799,11 +808,12 @@ Transfer ownership.
 <TabItem label="Python">
 
 ```python
-result = agent.transfer(
+tx = agent.transfer(
     to: str,
     approve_operator: bool = False,
     idem: Optional[str] = None
-) -> Dict
+) -> TransactionHandle[Dict]
+result = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -811,22 +821,23 @@ result = agent.transfer(
 
 ```ts
 import { Agent } from 'agent0-sdk';
-import type { Address, AgentId } from 'agent0-sdk';
+import type { Address, AgentId, TransactionHandle } from 'agent0-sdk';
 
-const result: {
+const tx: TransactionHandle<{
   txHash: string;
   from: Address;
   to: Address;
   agentId: AgentId;
-} = await agent.transfer(
+}> = await agent.transfer(
   newOwner: Address
 );
+const { result } = await tx.waitConfirmed();
 ```
 
 </TabItem>
 </Tabs>
 
-**TypeScript Note:** Method is async, only takes `newOwner` parameter (no `approve_operator` or `idem`), and returns typed object.
+**TypeScript Note:** Method is async, only takes `newOwner` parameter (no `approve_operator` or `idem`), and returns a `TransactionHandle<...>`.
 
 **Parameters:**
 
@@ -853,7 +864,8 @@ const result: {
 ```python
 # Transfer agent to new owner
 new_owner = "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6"
-result = agent.transfer(new_owner)
+tx = agent.transfer(new_owner)
+result = tx.wait_confirmed(timeout=180).result
 
 print(f"Transfer successful: {result['txHash']}")
 print(f"New owner: {result['to']}")
@@ -865,7 +877,8 @@ print(f"New owner: {result['to']}")
 ```ts
 // Transfer agent to new owner
 const newOwner = "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6";
-const result = await agent.transfer(newOwner);
+const tx = await agent.transfer(newOwner);
+const { result } = await tx.waitConfirmed();
 
 console.log(`Transfer successful: ${result.txHash}`);
 console.log(`New owner: ${result.to}`);
@@ -889,10 +902,11 @@ Add operator.
 <TabItem label="Python">
 
 ```python
-result = agent.addOperator(
+tx = agent.addOperator(
     operator: str,
     idem: Optional[str] = None
-) -> Dict
+) -> TransactionHandle[Dict]
+result = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -916,10 +930,11 @@ Remove operator.
 <TabItem label="Python">
 
 ```python
-result = agent.removeOperator(
+tx = agent.removeOperator(
     operator: str,
     idem: Optional[str] = None
-) -> Dict
+) -> TransactionHandle[Dict]
+result = tx.wait_confirmed(timeout=180).result
 ```
 
 </TabItem>
@@ -953,7 +968,8 @@ reg_file = agent.activate(idem: Optional[str] = None) -> RegistrationFile
 // Note: This method is not available in TypeScript SDK
 // Use setActive(true) and registerIPFS() instead:
 agent.setActive(true);
-const regFile = await agent.registerIPFS();
+const tx = await agent.registerIPFS();
+const { result: regFile } = await tx.waitConfirmed();
 ```
 
 </TabItem>
@@ -979,7 +995,8 @@ reg_file = agent.deactivate(idem: Optional[str] = None) -> RegistrationFile
 // Note: This method is not available in TypeScript SDK
 // Use setActive(false) and registerIPFS() instead:
 agent.setActive(false);
-const regFile = await agent.registerIPFS();
+const tx = await agent.registerIPFS();
+const { result: regFile } = await tx.waitConfirmed();
 ```
 
 </TabItem>

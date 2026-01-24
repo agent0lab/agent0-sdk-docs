@@ -30,7 +30,8 @@ agent.setMCP("https://api.example.com/mcp")
 agent.setActive(True)
 
 print("Registering a new agent (setup for this example)...")
-registration = agent.registerIPFS()
+tx = agent.registerIPFS()
+registration = tx.wait_confirmed(timeout=180).result
 agent_id = registration.agentId
 print(f"Registered agentId: {agent_id}")
 
@@ -56,7 +57,8 @@ loaded.setMetadata({
 loaded.setMCP("https://api.example.com/mcp-updated")
 
 # Re-register (uploads new file, updates on-chain)
-updated = loaded.registerIPFS()
+update_tx = loaded.registerIPFS()
+updated = update_tx.wait_confirmed(timeout=180).result
 print(f"✅ Updated and re-registered: {updated.agentId}")
 print(f"New URI: {updated.agentURI}")
 
@@ -91,7 +93,8 @@ async function main() {
   agent.setActive(true);
 
   console.log('Registering a new agent (setup for this example)...');
-  const registration = await agent.registerIPFS();
+  const tx = await agent.registerIPFS();
+  const { result: registration } = await tx.waitConfirmed();
   const agentId = registration.agentId!;
 
   // 2) Load it back
@@ -108,7 +111,8 @@ async function main() {
 
   // 4) Re-register with updated information
   console.log('Updating agent registration...');
-  const updatedRegistrationFile = await loaded.registerIPFS();
+  const updateTx = await loaded.registerIPFS();
+  const { result: updatedRegistrationFile } = await updateTx.waitConfirmed();
   console.log(`Agent updated. New URI: ${updatedRegistrationFile.agentURI}`);
 }
 

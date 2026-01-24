@@ -38,7 +38,8 @@ agent = sdk.loadAgent("11155111:123")
 
 # Transfer to new owner
 new_owner = "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6"
-transfer_result = agent.transfer(new_owner)
+tx = agent.transfer(new_owner)
+transfer_result = tx.wait_confirmed(timeout=180).result
 
 print(f"Transfer successful: {transfer_result['txHash']}")
 ```
@@ -61,7 +62,8 @@ const agent = await sdk.loadAgent('11155111:123');
 
 // Transfer to new owner (async in TypeScript)
 const newOwner = '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6';
-const transferResult = await agent.transfer(newOwner);
+const tx = await agent.transfer(newOwner);
+const { result: transferResult } = await tx.waitConfirmed();
 
 console.log(`Transfer successful: ${transferResult.txHash}`);
 console.log(`From: ${transferResult.from}`);

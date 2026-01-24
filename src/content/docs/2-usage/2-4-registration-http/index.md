@@ -154,10 +154,11 @@ Notes:
 
 ```python
 # Register with your HTTP URL
-agent.registerHTTP("https://yourdomain.com/agents/my-agent.json")
+tx = agent.registerHTTP("https://yourdomain.com/agents/my-agent.json")
+registration_file = tx.wait_confirmed(timeout=180).result
 
-print(f"Agent registered: {agent.agentId}")
-print(f"Agent URI: {agent.agentURI}")  # https://yourdomain.com/...
+print(f"Agent registered: {registration_file.agentId}")
+print(f"Agent URI: {registration_file.agentURI}")  # https://yourdomain.com/...
 ```
 
 </TabItem>
@@ -165,7 +166,8 @@ print(f"Agent URI: {agent.agentURI}")  # https://yourdomain.com/...
 
 ```ts
 // Register with your HTTP URL (async in TypeScript)
-const registrationFile = await agent.registerHTTP('https://yourdomain.com/agents/my-agent.json');
+const tx = await agent.registerHTTP('https://yourdomain.com/agents/my-agent.json');
+const { result: registrationFile } = await tx.waitConfirmed();
 
 console.log(`Agent registered: ${registrationFile.agentId}`);
 console.log(`Agent URI: ${registrationFile.agentURI}`); // https://yourdomain.com/...
@@ -208,7 +210,8 @@ with open("my-agent.json", "w") as f:
 # Upload to: https://yourdomain.com/agents/my-agent.json
 
 # 4. Register on-chain
-agent.registerHTTP("https://yourdomain.com/agents/my-agent.json")
+tx = agent.registerHTTP("https://yourdomain.com/agents/my-agent.json")
+tx.wait_confirmed(timeout=180)
 
 print(f"✅ Agent registered: {agent.agentId}")
 ```
@@ -245,7 +248,8 @@ fs.writeFileSync('my-agent.json', jsonContent, 'utf8');
 // Upload to: https://yourdomain.com/agents/my-agent.json
 
 // 4. Register on-chain (async in TypeScript)
-const registrationFile = await agent.registerHTTP('https://yourdomain.com/agents/my-agent.json');
+const tx = await agent.registerHTTP('https://yourdomain.com/agents/my-agent.json');
+const { result: registrationFile } = await tx.waitConfirmed();
 
 console.log(`✅ Agent registered: ${registrationFile.agentId}`);
 ```
@@ -313,7 +317,7 @@ The SDK generates ERC-8004 compliant registration files:
   "name": "My AI Agent",
   "description": "Agent description",
   "image": "https://example.com/image.png",
-  "endpoints": [
+  "services": [
     {
       "name": "MCP",
       "endpoint": "https://mcp.example.com/",
@@ -337,7 +341,7 @@ The SDK generates ERC-8004 compliant registration files:
   ],
   "supportedTrust": ["reputation"],
   "active": true,
-  "x402support": false,
+  "x402Support": false,
   "updatedAt": 1234567890
 }
 ```

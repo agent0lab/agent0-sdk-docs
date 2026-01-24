@@ -124,11 +124,12 @@ agent.setMCP("https://mcp.example.com/")
 agent.setA2A("https://a2a.example.com/agent.json")
 
 # Register - automatically handles everything!
-agent.registerIPFS()
+tx = agent.registerIPFS()
+registration_file = tx.wait_confirmed(timeout=180).result
 
 # Get agent ID
-print(f"Agent registered: {agent.agentId}")
-print(f"Agent URI: {agent.agentURI}")  # ipfs://Qm...
+print(f"Agent registered: {registration_file.agentId}")
+print(f"Agent URI: {registration_file.agentURI}")  # ipfs://Qm...
 ```
 
 </TabItem>
@@ -141,7 +142,8 @@ await agent.setMCP('https://mcp.example.com/');
 await agent.setA2A('https://a2a.example.com/agent.json');
 
 // Register - automatically handles everything! (async in TypeScript)
-const registrationFile = await agent.registerIPFS();
+const tx = await agent.registerIPFS();
+const { result: registrationFile } = await tx.waitConfirmed();
 
 // Get agent ID
 console.log(`Agent registered: ${registrationFile.agentId}`);
@@ -164,9 +166,10 @@ agent.updateInfo(description="Updated description")
 agent.setMCP("https://new-mcp.example.com")
 
 # Re-register (uploads new file, updates URI)
-agent.registerIPFS()
+tx = agent.registerIPFS()
+updated = tx.wait_confirmed(timeout=180).result
 
-print(f"Updated: {agent.agentURI}")
+print(f"Updated: {updated.agentURI}")
 ```
 
 </TabItem>
@@ -178,7 +181,8 @@ agent.updateInfo(undefined, 'Updated description', undefined);
 await agent.setMCP('https://new-mcp.example.com');
 
 // Re-register (uploads new file, updates URI) - async in TypeScript
-const registrationFile = await agent.registerIPFS();
+const tx = await agent.registerIPFS();
+const { result: registrationFile } = await tx.waitConfirmed();
 
 console.log(`Updated: ${registrationFile.agentURI}`);
 ```
@@ -202,7 +206,7 @@ Your agent’s registration file is stored on IPFS:
   "name": "My AI Agent",
   "description": "Agent description",
   "image": "https://example.com/image.png",
-  "endpoints": [
+  "services": [
     {
       "name": "MCP",
       "endpoint": "https://mcp.example.com/",
@@ -217,7 +221,7 @@ Your agent’s registration file is stored on IPFS:
   ],
   "supportedTrust": ["reputation"],
   "active": true,
-  "x402support": false,
+  "x402Support": false,
   "updatedAt": 1234567890
 }
 ```

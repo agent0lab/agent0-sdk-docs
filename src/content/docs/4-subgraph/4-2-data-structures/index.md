@@ -103,8 +103,6 @@ type AgentRegistrationFile {
   a2aVersion: String
   ens: String
   did: String
-  agentWallet: Bytes
-  agentWalletChainId: BigInt
   mcpTools: [String!]!
   mcpPrompts: [String!]!
   mcpResources: [String!]!
@@ -122,12 +120,21 @@ type FeedbackFile {
   id: ID!                    # Format: "transactionHash:cid"
   cid: String!               # IPFS CID (for querying by content)
   feedbackId: String!
+  agentRegistry: String
+  agentId: BigInt
+  clientAddress: String
+  createdAtIso: String
+  valueRaw: BigInt
+  valueDecimals: Int
   text: String
-  capability: String
-  name: String
-  skill: String
-  task: String
-  context: String
+  mcpTool: String
+  mcpPrompt: String
+  mcpResource: String
+  a2aSkills: [String!]!
+  a2aContextId: String
+  a2aTaskId: String
+  oasfSkills: [String!]!
+  oasfDomains: [String!]!
   proofOfPaymentFromAddress: String
   proofOfPaymentToAddress: String
   proofOfPaymentChainId: String

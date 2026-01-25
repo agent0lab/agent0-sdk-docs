@@ -95,7 +95,7 @@ type AgentRegistrationFile {
   description: String
   image: String
   active: Boolean
-  x402support: Boolean
+  x402Support: Boolean
   supportedTrusts: [String!]!
   mcpEndpoint: String
   mcpVersion: String

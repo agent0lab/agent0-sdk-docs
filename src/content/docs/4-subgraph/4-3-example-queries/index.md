@@ -169,7 +169,7 @@ Example GraphQL queries for the Agent0 subgraph.
       description
       image
       active
-      x402support
+      x402Support
       supportedTrusts
       mcpEndpoint
       mcpVersion

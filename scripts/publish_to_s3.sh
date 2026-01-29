@@ -8,7 +8,7 @@ ENV_FILE="${SITE_ROOT}/s3-publish.env"
 DOTENV_FILE="${SITE_ROOT}/.env"
 TOKEN_FILE="${SITE_ROOT}/.aws_web_identity_token"
 
-DEFAULT_BUCKET="sdk.ag0.xyz"
+DEFAULT_BUCKET="docs.sdk.ag0.xyz"
 
 #
 # Env loading order:

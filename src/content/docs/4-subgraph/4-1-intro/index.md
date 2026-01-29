@@ -83,7 +83,7 @@ const sdk = new SDK({
 **Currently supported:**
 
 - **Ethereum Mainnet** (Chain ID: `1`)
-  - Default (SDK): `https://gateway.thegraph.com/api/7fd2e7d89ce3ef24cd0d4590298f0b2c/subgraphs/id/FX78UzofJFr5h2Udznv7pZ2uLG1JBbYsPm7eecRSYnty`
+  - Default (SDK): `https://gateway.thegraph.com/api/7fd2e7d89ce3ef24cd0d4590298f0b2c/subgraphs/id/FV6RR6y13rsnCxBAicKuQEwDp8ioEGiNaWaZUmvr1F8k`
 - **Ethereum Sepolia** (Chain ID: `11155111`)
   - Default (SDK): `https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT`
 

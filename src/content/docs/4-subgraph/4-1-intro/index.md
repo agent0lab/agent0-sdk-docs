@@ -82,12 +82,16 @@ const sdk = new SDK({
 
 **Currently supported:**
 
-- **Ethereum Sepolia**: `https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT`
+- **Ethereum Mainnet** (Chain ID: `1`)
+  - Default (SDK): `https://gateway.thegraph.com/api/7fd2e7d89ce3ef24cd0d4590298f0b2c/subgraphs/id/FX78UzofJFr5h2Udznv7pZ2uLG1JBbYsPm7eecRSYnty`
+- **Ethereum Sepolia** (Chain ID: `11155111`)
+  - Default (SDK): `https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT`
+
+Note: The Graph Gateway endpoints require authentication (API key / authorization header). If you’re querying manually, use `https://gateway.thegraph.com/api/<API_KEY>/subgraphs/id/<SUBGRAPH_ID>`.
 
 **Coming soon:**
 
 - Base Sepolia
-- Ethereum Mainnet
 - Base Mainnet
 - Additional networks
 ## What the Subgraph Provides

@@ -14,7 +14,7 @@ import os
 # Initialize SDK
 # Subgraph automatically uses default URL - no configuration needed!
 sdk = SDK(
-    chainId=11155111,  # Ethereum Sepolia testnet
+    chainId=11155111,  # Ethereum Sepolia testnet (use 1 for Ethereum Mainnet)
     rpcUrl=os.getenv("RPC_URL"),
     signer=os.getenv("PRIVATE_KEY"),
     ipfs="pinata",

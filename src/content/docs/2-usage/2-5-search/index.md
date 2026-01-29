@@ -334,8 +334,10 @@ The SDK supports two agent ID formats:
 - **Chain ID prefix**: `"11155111:1234"` - Explicitly specifies the chain (format: `"{chainId}:{agentId}"`)
 ### Supported Networks
 
+- **Ethereum Mainnet** (Chain ID: `1`)
 - **Ethereum Sepolia** (Chain ID: `11155111`)
-  - Additional networks are planned but not enabled in SDK defaults yet.
+
+Additional networks are planned but not enabled in SDK defaults yet.
 ### Multi-Chain Agent Search
 
 <Tabs>
@@ -354,7 +356,7 @@ results = sdk.searchAgents(params)
 
 # Multiple chains
 params = SearchParams()
-params.chains = [11155111]
+params.chains = [1, 11155111]  # Ethereum Mainnet and Ethereum Sepolia
 results = sdk.searchAgents(params)
 
 # All supported chains
@@ -379,7 +381,7 @@ const results = await sdk.searchAgents({
 // Multiple chains
 const results = await sdk.searchAgents({
   active: true,
-  chains: [11155111]
+  chains: [1, 11155111]  // Ethereum Mainnet and Ethereum Sepolia
 });
 
 // All supported chains

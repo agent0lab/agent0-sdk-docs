@@ -51,7 +51,8 @@ export default defineConfig({
             { label: "Search", link: "/2-usage/2-5-search/" },
             { label: "Feedback", link: "/2-usage/2-6-use-feedback/" },
             { label: "Transfer", link: "/2-usage/2-7-transfer-agents/" },
-            { label: "Client-side usage", link: "/2-usage/2-8-browser-wallets/" }
+            { label: "Client-side usage", link: "/2-usage/2-8-browser-wallets/" },
+            { label: "Moltbook Playbook", link: "/2-usage/2-9-moltbook-playbook/" }
           ]
         },
         {
@@ -83,4 +84,3 @@ export default defineConfig({
     })
   ]
 });
-

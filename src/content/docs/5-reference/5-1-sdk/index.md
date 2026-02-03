@@ -130,10 +130,8 @@ Search for agents with filters.
 
 ```python
 results = sdk.searchAgents(
-    params: Union[SearchParams, Dict, None] = None,
-    sort: List[str] = None,
-    page_size: int = 50,
-    cursor: Optional[str] = None,
+    filters: Union[SearchFilters, Dict, None] = None,
+    options: Union[SearchOptions, Dict, None] = None,
     **kwargs
 ) -> Dict[str, Any]
 ```
@@ -143,11 +141,11 @@ results = sdk.searchAgents(
 
 ```ts
 import { SDK } from 'agent0-sdk';
-import type { SearchParams, AgentSummary } from 'agent0-sdk';
+import type { SearchFilters, SearchOptions, AgentSummary } from 'agent0-sdk';
 
 const results: { items: AgentSummary[]; nextCursor?: string } = await sdk.searchAgents(
-  filters?: SearchParams,
-  options?: { sort?: string[]; pageSize?: number; cursor?: string }
+  filters?: SearchFilters,
+  options?: SearchOptions
 );
 ```
 
@@ -156,7 +154,7 @@ const results: { items: AgentSummary[]; nextCursor?: string } = await sdk.search
 
 **Parameters:**
 
-- `params.chains` (optional):
+- `filters.chains` (optional):
 
 - `None` / `undefined` (default) - Uses SDK’s default chain
 - `[chainId1, chainId2, ...]` - List of specific chain IDs to search
@@ -398,63 +396,42 @@ const results: Feedback[] = await sdk.searchFeedback(
 
 - You must provide **at least one** filter (`agentId`/`agents`/`reviewers`/`tags`/etc.). Empty searches are rejected to avoid accidental global queries.
 - Reviewer-only searches require a configured **subgraph** (no on-chain fallback).
-### searchAgentsByReputation
+### searchAgents (feedback / reputation filters)
 
-Find agents by reputation.
+`searchAgentsByReputation` was removed. Use **`searchAgents()`** with `filters.feedback` instead.
 
 <Tabs>
 <TabItem label="Python">
 
 ```python
-results = sdk.searchAgentsByReputation(
-    agents: Optional[List[AgentId]] = None,
-    tags: Optional[List[str]] = None,
-    reviewers: Optional[List[Address]] = None,
-    capabilities: Optional[List[str]] = None,
-    skills: Optional[List[str]] = None,
-    tasks: Optional[List[str]] = None,
-    names: Optional[List[str]] = None,
-    minAverageValue: Optional[float] = None,
-    includeRevoked: bool = False,
-    page_size: int = 50,
-    cursor: Optional[str] = None,
-    sort: Optional[List[str]] = None,
-    chains: Optional[Union[List[ChainId], Literal["all"]]] = None,
-) -> Dict
+results = sdk.searchAgents(
+    filters={
+        "chains": "all",
+        "feedback": {
+            "minValue": 80,
+            "tag": "enterprise",
+            "includeRevoked": False,
+        },
+    },
+    options={"pageSize": 50},
+)
 ```
 
 </TabItem>
 <TabItem label="TypeScript">
 
 ```ts
-import { SDK } from 'agent0-sdk';
-import type { AgentId, AgentSummary, Address } from 'agent0-sdk';
-
-const results: { items: AgentSummary[]; nextCursor?: string; meta?: {...} } = await sdk.searchAgentsByReputation(
-  filters?: {
-    agents?: AgentId[];
-    tags?: string[];
-    reviewers?: Address[];
-    capabilities?: string[];
-    skills?: string[];
-    tasks?: string[];
-    names?: string[];
-    minAverageValue?: number;
+const results = await sdk.searchAgents(
+  {
+    chains: 'all',
+    feedback: { minValue: 80, tag: 'enterprise', includeRevoked: false },
   },
-  options?: { includeRevoked?: boolean; pageSize?: number; cursor?: string; sort?: string[]; chains?: number[] | 'all' }
+  { pageSize: 50 }
 );
 ```
 
 </TabItem>
 </Tabs>
-
-**Parameters:**
-
-- `chains` (optional):
-
-- `None` / `undefined` (default) - Uses SDK’s default chain
-- `[chainId1, chainId2, ...]` - List of specific chain IDs to search
-- `"all"` - Searches all configured chains in parallel
 
 ### revokeFeedback
 

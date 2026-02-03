@@ -45,6 +45,33 @@ console.log(`Found ${results.items.length} agents`);
 
 ## Search Parameters
 
+### Keyword (Semantic Search)
+
+Use `keyword` to prefilter agents using the external semantic search endpoint, then apply all other filters on subgraph data.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+results = sdk.searchAgents(
+    filters={"keyword": "market analysis", "chains": [1]},
+    options={"pageSize": 20},
+)
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const results = await sdk.searchAgents(
+  { keyword: 'market analysis', chains: [1] },
+  { pageSize: 20 }
+);
+```
+
+</TabItem>
+</Tabs>
+
 ### By Endpoints
 
 <Tabs>
@@ -52,10 +79,13 @@ console.log(`Found ${results.items.length} agents`);
 
 ```python
 # Find agents with MCP endpoints
-results = sdk.searchAgents(mcp=True)
+results = sdk.searchAgents(filters={"hasMCP": True})
 
 # Find agents with A2A endpoints
-results = sdk.searchAgents(a2a=True)
+results = sdk.searchAgents(filters={"hasA2A": True})
+
+# Find agents with a Web endpoint
+results = sdk.searchAgents(filters={"hasWeb": True})
 ```
 
 </TabItem>
@@ -63,10 +93,13 @@ results = sdk.searchAgents(a2a=True)
 
 ```ts
 // Find agents with MCP endpoints
-const results = await sdk.searchAgents({ mcp: true });
+const results = await sdk.searchAgents({ hasMCP: true });
 
 // Find agents with A2A endpoints
-const results = await sdk.searchAgents({ a2a: true });
+const results = await sdk.searchAgents({ hasA2A: true });
+
+// Find agents with a Web endpoint
+const results = await sdk.searchAgents({ hasWeb: true });
 ```
 
 </TabItem>
@@ -172,7 +205,7 @@ const results = await sdk.searchAgents({ active: false });
 
 ```python
 # Find agents by ENS domain
-results = sdk.searchAgents(ens="agent.eth")
+results = sdk.searchAgents(filters={"ensContains": "agent.eth"})
 ```
 
 </TabItem>
@@ -180,7 +213,81 @@ results = sdk.searchAgents(ens="agent.eth")
 
 ```ts
 // Find agents by ENS domain
-const results = await sdk.searchAgents({ ens: 'agent.eth' });
+const results = await sdk.searchAgents({ ensContains: 'agent.eth' });
+```
+
+</TabItem>
+</Tabs>
+
+### By Reputation / Feedback (Unified Search)
+
+Reputation filters are expressed as `filters.feedback` (this replaces the old “search by reputation” API).
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+results = sdk.searchAgents(
+    filters={
+        "chains": [1],
+        "feedback": {
+            "includeRevoked": False,
+            "minValue": 80,
+            "minCount": 3,
+            "tag1": "starred",
+            "tag2": "token_analysis",
+            "endpoint": "gekkoterminal",
+        },
+    },
+    options={"pageSize": 20, "sort": ["averageValue:desc"]},
+)
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const results = await sdk.searchAgents(
+  {
+    chains: [1],
+    feedback: {
+      includeRevoked: false,
+      minValue: 80,
+      minCount: 3,
+      tag1: 'starred',
+      tag2: 'token_analysis',
+      endpoint: 'gekkoterminal',
+    },
+  },
+  { pageSize: 20, sort: ['averageValue:desc'] }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### By Metadata (Two-Phase Prefilter)
+
+Metadata filters query `AgentMetadata` first, then constrain the agent query.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+results = sdk.searchAgents(
+    filters={"hasMetadataKey": "agentWallet"},
+    options={"pageSize": 20},
+)
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const results = await sdk.searchAgents(
+  { hasMetadataKey: 'agentWallet' },
+  { pageSize: 20 }
+);
 ```
 
 </TabItem>
@@ -194,10 +301,15 @@ const results = await sdk.searchAgents({ ens: 'agent.eth' });
 ```python
 # Complex multi-criteria search
 results = sdk.searchAgents(
-    mcpTools=["code_generation"],
-    a2aSkills=["python"],
-    active=True,
-    x402support=True
+    filters={
+        "mcpTools": ["code_generation"],
+        "a2aSkills": ["python"],
+        "active": True,
+        "x402support": True,
+        "hasMCP": True,
+        "feedback": {"hasFeedback": True, "minValue": 70},
+    },
+    options={"pageSize": 20},
 )
 ```
 
@@ -206,12 +318,17 @@ results = sdk.searchAgents(
 
 ```ts
 // Complex multi-criteria search
-const results = await sdk.searchAgents({
-  mcpTools: ['code_generation'],
-  a2aSkills: ['python'],
-  active: true,
-  x402support: true,
-});
+const results = await sdk.searchAgents(
+  {
+    mcpTools: ['code_generation'],
+    a2aSkills: ['python'],
+    active: true,
+    x402support: true,
+    hasMCP: true,
+    feedback: { hasFeedback: true, minValue: 70 },
+  },
+  { pageSize: 20 }
+);
 ```
 
 </TabItem>
@@ -225,9 +342,12 @@ const results = await sdk.searchAgents({
 ```python
 # Paginated search
 results = sdk.searchAgents(
-    page_size=20,
-    cursor=results.get('nextCursor'),  # For next page
-    sort=["updatedAt:desc"]  # Sort by most recently updated
+    filters={},
+    options={
+        "pageSize": 20,
+        "cursor": results.get("nextCursor"),  # For next page
+        "sort": ["updatedAt:desc"],  # Sort by most recently updated
+    },
 )
 
 for agent in results['items']:
@@ -293,7 +413,8 @@ console.log(`A2A Skills: ${agent.a2aSkills?.join(', ')}`);
 
 ## Multi-Chain Search
 
-The SDK supports multi-chain search when multiple chains are configured (SDK defaults currently include Ethereum Sepolia only).
+The SDK supports multi-chain search when multiple chains are configured.
+SDK defaults currently include **Ethereum Mainnet (1)**, **Ethereum Sepolia (11155111)**, and **Polygon Mainnet (137)** for discovery.
 
 ### Default Chain
 
@@ -336,6 +457,7 @@ The SDK supports two agent ID formats:
 
 - **Ethereum Mainnet** (Chain ID: `1`)
 - **Ethereum Sepolia** (Chain ID: `11155111`)
+- **Polygon Mainnet** (Chain ID: `137`)
 
 Additional networks are planned but not enabled in SDK defaults yet.
 ### Multi-Chain Agent Search
@@ -344,25 +466,17 @@ Additional networks are planned but not enabled in SDK defaults yet.
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SearchParams
-
 # Single chain (uses SDK's default chain)
-results = sdk.searchAgents(active=True)
+results = sdk.searchAgents(filters={"active": True})
 
 # Single specific chain
-params = SearchParams()
-params.chains = [11155111]  # Ethereum Sepolia
-results = sdk.searchAgents(params)
+results = sdk.searchAgents(filters={"chains": [11155111], "active": True})
 
 # Multiple chains
-params = SearchParams()
-params.chains = [1, 11155111]  # Ethereum Mainnet and Ethereum Sepolia
-results = sdk.searchAgents(params)
+results = sdk.searchAgents(filters={"chains": [1, 11155111, 137], "active": True})
 
 # All supported chains
-params = SearchParams()
-params.chains = "all"  # Searches all configured chains
-results = sdk.searchAgents(params)
+results = sdk.searchAgents(filters={"chains": "all", "active": True})
 ```
 
 </TabItem>
@@ -487,17 +601,17 @@ agent.a2aSkills       // ["skill1", "skill2"] | undefined
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SearchParams
-
-# Using SearchParams for complex queries
-params = SearchParams(
-    name="Test",
-    mcpTools=["code_generation", "analysis"],
-    active=True,
-    supportedTrust=["reputation"]
+# Using SearchFilters for complex queries
+results = sdk.searchAgents(
+    filters={
+        "name": "Test",
+        "mcpTools": ["code_generation", "analysis"],
+        "active": True,
+        "supportedTrust": ["reputation"],
+        "feedback": {"hasFeedback": True},
+    },
+    options={"pageSize": 20, "sort": ["updatedAt:desc"]},
 )
-
-results = sdk.searchAgents(params=params)
 ```
 
 </TabItem>
@@ -505,17 +619,19 @@ results = sdk.searchAgents(params=params)
 
 ```ts
 import { SDK } from 'agent0-sdk';
-import type { SearchParams } from 'agent0-sdk';
+import type { SearchFilters, SearchOptions } from 'agent0-sdk';
 
-// Using SearchParams for complex queries
-const params: SearchParams = {
+// Using SearchFilters/SearchOptions for complex queries
+const filters: SearchFilters = {
   name: 'Test',
   mcpTools: ['code_generation', 'analysis'],
   active: true,
   supportedTrust: ['reputation'],
+  feedback: { hasFeedback: true },
 };
+const options: SearchOptions = { pageSize: 20, sort: ['updatedAt:desc'] };
 
-const results = await sdk.searchAgents(params);
+const results = await sdk.searchAgents(filters, options);
 ```
 
 </TabItem>

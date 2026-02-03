@@ -257,8 +257,11 @@ class AgentSummary:
     description: str
     owners: List[Address]
     operators: List[Address]
-    mcp: bool
-    a2a: bool
+    # Endpoint semantics: endpoint string when present (not booleans)
+    mcp: Optional[str]
+    a2a: Optional[str]
+    web: Optional[str]
+    email: Optional[str]
     ens: Optional[str]
     did: Optional[str]
     walletAddress: Optional[Address]
@@ -267,8 +270,19 @@ class AgentSummary:
     mcpTools: List[str]
     mcpPrompts: List[str]
     mcpResources: List[str]
+    oasfSkills: List[str]
+    oasfDomains: List[str]
     active: bool
     x402support: bool
+    # Optional (search-derived / subgraph fields)
+    createdAt: Optional[Timestamp]
+    updatedAt: Optional[Timestamp]
+    lastActivity: Optional[Timestamp]
+    agentURI: Optional[URI]
+    agentURIType: Optional[str]
+    feedbackCount: Optional[int]
+    averageValue: Optional[float]
+    semanticScore: Optional[float]
     extras: Dict[str, Any]
 ```
 
@@ -285,8 +299,11 @@ export interface AgentSummary {
   description: string;
   owners: Address[];
   operators: Address[];
-  mcp: boolean;
-  a2a: boolean;
+  // Endpoint semantics: endpoint string when present (not booleans)
+  mcp?: string;
+  a2a?: string;
+  web?: string;
+  email?: string;
   ens?: string;
   did?: string;
   walletAddress?: Address;
@@ -295,8 +312,19 @@ export interface AgentSummary {
   mcpTools: string[];
   mcpPrompts: string[];
   mcpResources: string[];
+  oasfSkills?: string[];
+  oasfDomains?: string[];
   active: boolean;
   x402support: boolean;
+  // Optional (search-derived / subgraph fields)
+  createdAt?: number;
+  updatedAt?: number;
+  lastActivity?: number;
+  agentURI?: string;
+  agentURIType?: string;
+  feedbackCount?: number;
+  averageValue?: number;
+  semanticScore?: number;
   extras: Record;
 }
 ```
@@ -368,33 +396,10 @@ export type FeedbackId = string;  // "agentId:clientAddress:feedbackIndex"
 
 **Note:** In TypeScript, `Feedback.id` is a tuple `[AgentId, Address, number]` rather than a string. The string format `"agentId:clientAddress:feedbackIndex"` is represented by the `FeedbackId` type.
 
-## SearchParams
+## SearchFilters / SearchOptions / FeedbackFilters
 
-```python
-@dataclass
-class SearchParams:
-    chains: Optional[List[ChainId]] = None
-    name: Optional[str] = None
-    description: Optional[str] = None
-    owners: Optional[List[Address]] = None
-    mcp: Optional[bool] = None
-    a2a: Optional[bool] = None
-    ens: Optional[str] = None
-    walletAddress: Optional[Address] = None
-    supportedTrust: Optional[List[str]] = None
-    a2aSkills: Optional[List[str]] = None
-    mcpTools: Optional[List[str]] = None
-    mcpPrompts: Optional[List[str]] = None
-    mcpResources: Optional[List[str]] = None
-    active: Optional[bool] = True
-    x402support: Optional[bool] = None
+The unified `searchAgents(filters, options)` API uses `SearchFilters` + `SearchOptions`, and reputation filters live under `SearchFilters.feedback` as `FeedbackFilters`.
 
-    def to_dict() -> Dict
-```
-
-```ts
-// Interface from 'agent0-sdk'
-export interface SearchParams {
-  chains?: number[];  // ChainId[]
-  name?: string;  // case-insensitive substring
-  description?: string;  // semantic; vector distance
+See:
+- [`/2-usage/2-5-search/`](/2-usage/2-5-search/) for examples
+- [`/5-reference/5-1-sdk/`](/5-reference/5-1-sdk/) for the method signature

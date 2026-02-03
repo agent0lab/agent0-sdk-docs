@@ -21,7 +21,7 @@ sdk = SDK(
 )
 
 # Find all agents with MCP endpoints
-results = sdk.searchAgents(mcp=True)
+results = sdk.searchAgents(filters={"hasMCP": True})
 for agent in results['items']:
     print(f"{agent.name} - MCP enabled")
 ```
@@ -41,7 +41,7 @@ async function main() {
   });
 
   // Find all agents with MCP endpoints (async in TypeScript)
-  const results = await sdk.searchAgents({ mcp: true });
+  const results = await sdk.searchAgents({ hasMCP: true });
   for (const agent of results.items) {
     console.log(`${agent.name} - MCP enabled`);
   }
@@ -60,7 +60,7 @@ main().catch(console.error);
 
 ```python
 # Python developers
-results = sdk.searchAgents(a2aSkills=["python"])
+results = sdk.searchAgents(filters={"a2aSkills": ["python"]})
 print(f"Found {len(results['items'])} Python agents")
 ```
 
@@ -83,12 +83,12 @@ console.log(`Found ${results.items.length} Python agents`);
 
 ```python
 # Top-rated agents
-results = sdk.searchAgentsByReputation(
-    minAverageValue=90,
-    tags=["enterprise"]
+results = sdk.searchAgents(
+    filters={"feedback": {"minValue": 90, "tag": "enterprise", "includeRevoked": False}},
+    options={"pageSize": 20, "sort": ["averageValue:desc"]},
 )
 for agent in results['items']:
-    print(f"{agent.name}: {agent.extras['averageValue']}")
+    print(f"{agent.name}: {agent.averageValue}")
 ```
 
 </TabItem>
@@ -96,12 +96,12 @@ for agent in results['items']:
 
 ```ts
 // Top-rated agents (async in TypeScript)
-const results = await sdk.searchAgentsByReputation({
-  tags: ['enterprise'],
-  minAverageValue: 90,
-});
+const results = await sdk.searchAgents(
+  { feedback: { minValue: 90, tag: 'enterprise', includeRevoked: false } },
+  { pageSize: 20, sort: ['averageValue:desc'] }
+);
 for (const agent of results.items) {
-  console.log(`${agent.name}: ${agent.extras.averageValue}`);
+  console.log(`${agent.name}: ${agent.averageValue}`);
 }
 ```
 
@@ -116,11 +116,15 @@ for (const agent of results.items) {
 ```python
 # Complex search
 results = sdk.searchAgents(
-    mcpTools=["code_generation", "analysis"],
-    a2aSkills=["python", "javascript"],
-    active=True,
-    x402support=True,
-    supportedTrust=["reputation"]
+    filters={
+        "mcpTools": ["code_generation", "analysis"],
+        "a2aSkills": ["python", "javascript"],
+        "active": True,
+        "x402support": True,
+        "supportedTrust": ["reputation"],
+        "feedback": {"hasFeedback": True, "minValue": 70},
+    },
+    options={"pageSize": 20, "sort": ["updatedAt:desc"]},
 )
 
 print(f"Found {len(results['items'])} matching agents")
@@ -131,13 +135,17 @@ print(f"Found {len(results['items'])} matching agents")
 
 ```ts
 // Complex search (async in TypeScript)
-const results = await sdk.searchAgents({
-  mcpTools: ['code_generation', 'analysis'],
-  a2aSkills: ['python', 'javascript'],
-  active: true,
-  x402support: true,
-  supportedTrust: ['reputation'],
-});
+const results = await sdk.searchAgents(
+  {
+    mcpTools: ['code_generation', 'analysis'],
+    a2aSkills: ['python', 'javascript'],
+    active: true,
+    x402support: true,
+    supportedTrust: ['reputation'],
+    feedback: { hasFeedback: true, minValue: 70 },
+  },
+  { pageSize: 20, sort: ['updatedAt:desc'] }
+);
 
 console.log(`Found ${results.items.length} matching agents`);
 ```
@@ -156,7 +164,7 @@ cursor = None
 all_agents = []
 
 while True:
-    results = sdk.searchAgents(page_size=50, cursor=cursor)
+    results = sdk.searchAgents(filters={}, options={"pageSize": 50, "cursor": cursor})
     all_agents.extend(results['items'])
 
     cursor = results.get('nextCursor')

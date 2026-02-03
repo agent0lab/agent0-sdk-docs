@@ -280,89 +280,72 @@ Find agents by reputation:
 <TabItem label="Python">
 
 ```python
-# Find highly-rated agents
+# Optional: include revoked feedback entries in reputation filters
+results = sdk.searchAgents(
+    filters={"feedback": {"minValue": 80, "tag": "enterprise", "includeRevoked": True}},
+    options={"pageSize": 20},
+)
+
+# Find highly-rated agents (unified search)
 # Single chain (uses SDK's default chain)
-results = sdk.searchAgentsByReputation(
-    minAverageValue=80,
-    tags=["enterprise"],
-    capabilities=["code_generation"]
+results = sdk.searchAgents(
+    filters={"feedback": {"minValue": 80, "tag": "enterprise"}},
+    options={"pageSize": 20},
 )
 
 # Single specific chain
-results = sdk.searchAgentsByReputation(
-    minAverageValue=80,
-    tags=["enterprise"],
-    capabilities=["code_generation"],
-    chains=[11155111]  # ETH Sepolia
+results = sdk.searchAgents(
+    filters={"chains": [11155111], "feedback": {"minValue": 80, "tag": "enterprise"}},
+    options={"pageSize": 20},
 )
 
 # Multiple chains
-results = sdk.searchAgentsByReputation(
-    minAverageValue=80,
-    tags=["enterprise"],
-    capabilities=["code_generation"],
-    chains=[11155111]
+results = sdk.searchAgents(
+    filters={"chains": [11155111, 137], "feedback": {"minValue": 80, "tag": "enterprise"}},
+    options={"pageSize": 20},
 )
 
 # All supported chains
-results = sdk.searchAgentsByReputation(
-    minAverageValue=80,
-    tags=["enterprise"],
-    capabilities=["code_generation"],
-    chains="all"  # Searches all configured chains
+results = sdk.searchAgents(
+    filters={"chains": "all", "feedback": {"minValue": 80, "tag": "enterprise"}},
+    options={"pageSize": 20},
 )
 
 for agent in results['items']:
-    print(f"{agent.name}: {agent.extras['averageValue']}")
+    print(f"{agent.name}: {agent.averageValue}")
 ```
 
 </TabItem>
 <TabItem label="TypeScript">
 
 ```ts
-// Find highly-rated agents (async in TypeScript)
+// Find highly-rated agents (unified search)
 // Single chain (uses SDK's default chain)
-const singleChainResults = await sdk.searchAgentsByReputation(
-  {
-    minAverageValue: 80,
-    tags: ['enterprise'],
-    capabilities: ['code_generation'],
-  },
+const singleChainResults = await sdk.searchAgents(
+  { feedback: { minValue: 80, tag: 'enterprise' } },
   { pageSize: 20 }
 );
 
 // Single specific chain
-const sepoliaResults = await sdk.searchAgentsByReputation(
-  {
-    minAverageValue: 80,
-    tags: ['enterprise'],
-    capabilities: ['code_generation'],
-  },
-  { chains: [11155111], pageSize: 20 } // ETH Sepolia
+const sepoliaResults = await sdk.searchAgents(
+  { chains: [11155111], feedback: { minValue: 80, tag: 'enterprise' } },
+  { pageSize: 20 }
 );
 
 // Multiple chains
-const multiChainResults = await sdk.searchAgentsByReputation(
-  {
-    minAverageValue: 80,
-    tags: ['enterprise'],
-    capabilities: ['code_generation'],
-  },
-  { chains: [11155111], pageSize: 20 }
+const multiChainResults = await sdk.searchAgents(
+  { chains: [11155111, 137], feedback: { minValue: 80, tag: 'enterprise' } },
+  { pageSize: 20 }
 );
 
 // All supported chains
-const allChainsResults = await sdk.searchAgentsByReputation(
-  {
-    minAverageValue: 80,
-    tags: ['enterprise'],
-    capabilities: ['code_generation'],
-  },
-  { chains: 'all', pageSize: 20 } // Searches all configured chains
+const allChainsResults = await sdk.searchAgents(
+  { chains: 'all', feedback: { minValue: 80, tag: 'enterprise' } },
+  { pageSize: 20 }
 );
 
 for (const agent of singleChainResults.items) {
-  console.log(`${agent.name}: ${agent.extras.averageValue}`);
+  console.log(`${agent.name}: ${agent.averageValue}`);
 }
 ```
 

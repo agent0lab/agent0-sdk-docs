@@ -352,6 +352,70 @@ for (const agent of singleChainResults.items) {
 </TabItem>
 </Tabs>
 
+### FeedbackFilters (exhaustive reference for unified agent search)
+
+When you use `sdk.searchAgents()`, reputation filters live under `filters.feedback`.
+
+**Semantics note:** `minValue/maxValue/minCount/maxCount` apply to the **average/count over feedback entries that match the other feedback constraints** (tags, endpoint, fromReviewers, hasResponse, includeRevoked).
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+@dataclass
+class FeedbackFilters:
+    hasFeedback: Optional[bool] = None
+    hasNoFeedback: Optional[bool] = None
+    includeRevoked: Optional[bool] = None
+    minValue: Optional[float] = None
+    maxValue: Optional[float] = None
+    minCount: Optional[int] = None
+    maxCount: Optional[int] = None
+    fromReviewers: Optional[List[Address]] = None
+    endpoint: Optional[str] = None          # substring match
+    hasResponse: Optional[bool] = None
+    tag1: Optional[str] = None
+    tag2: Optional[str] = None
+    tag: Optional[str] = None               # matches tag1 OR tag2
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+export interface FeedbackFilters {
+  hasFeedback?: boolean;
+  hasNoFeedback?: boolean;
+  includeRevoked?: boolean;
+  minValue?: number;
+  maxValue?: number;
+  minCount?: number;
+  maxCount?: number;
+  fromReviewers?: Address[];
+  endpoint?: string; // substring match
+  hasResponse?: boolean;
+  tag1?: string;
+  tag2?: string;
+  tag?: string; // matches tag1 OR tag2
+}
+```
+
+</TabItem>
+</Tabs>
+
+| Field | Semantics |
+| --- | --- |
+| `hasFeedback` | Only agents with at least 1 feedback |
+| `hasNoFeedback` | Only agents with 0 feedback |
+| `includeRevoked` | Include revoked feedback entries in the pool used for filtering |
+| `minValue` / `maxValue` | Threshold on **average value** (inclusive) |
+| `minCount` / `maxCount` | Threshold on **count** (inclusive) |
+| `fromReviewers` | Only consider feedback from these reviewer wallets |
+| `endpoint` | Only consider feedback whose `endpoint` contains this substring |
+| `hasResponse` | Only consider feedback that has at least one response (if supported) |
+| `tag1` / `tag2` | Only consider feedback matching tag1/tag2 |
+| `tag` | Shorthand: match either tag1 OR tag2 |
+
 ## Manage Feedback
 
 ### Append Response

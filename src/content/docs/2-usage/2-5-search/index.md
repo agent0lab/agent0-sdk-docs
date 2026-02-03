@@ -112,16 +112,16 @@ const results = await sdk.searchAgents({ hasWeb: true });
 
 ```python
 # Find agents with specific MCP tools
-results = sdk.searchAgents(mcpTools=["code_generation"])
+results = sdk.searchAgents(filters={"mcpTools": ["code_generation"]})
 
 # Find agents with specific A2A skills
-results = sdk.searchAgents(a2aSkills=["python"])
+results = sdk.searchAgents(filters={"a2aSkills": ["python"]})
 
 # Find agents with specific MCP prompts
-results = sdk.searchAgents(mcpPrompts=["code_review"])
+results = sdk.searchAgents(filters={"mcpPrompts": ["code_review"]})
 
 # Find agents with specific MCP resources
-results = sdk.searchAgents(mcpResources=["documentation"])
+results = sdk.searchAgents(filters={"mcpResources": ["documentation"]})
 ```
 
 </TabItem>
@@ -151,10 +151,10 @@ const results = await sdk.searchAgents({ mcpResources: ['documentation'] });
 
 ```python
 # Find agents supporting reputation
-results = sdk.searchAgents(supportedTrust=["reputation"])
+results = sdk.searchAgents(filters={"supportedTrust": ["reputation"]})
 
 # Find agents with x402 payment support
-results = sdk.searchAgents(x402support=True)
+results = sdk.searchAgents(filters={"x402support": True})
 ```
 
 </TabItem>
@@ -178,10 +178,10 @@ const results = await sdk.searchAgents({ x402support: true });
 
 ```python
 # Find only active agents
-results = sdk.searchAgents(active=True)
+results = sdk.searchAgents(filters={"active": True})
 
 # Find inactive agents
-results = sdk.searchAgents(active=False)
+results = sdk.searchAgents(filters={"active": False})
 ```
 
 </TabItem>
@@ -320,10 +320,10 @@ results = sdk.searchAgents(
 // Complex multi-criteria search
 const results = await sdk.searchAgents(
   {
-    mcpTools: ['code_generation'],
-    a2aSkills: ['python'],
-    active: true,
-    x402support: true,
+  mcpTools: ['code_generation'],
+  a2aSkills: ['python'],
+  active: true,
+  x402support: true,
     hasMCP: true,
     feedback: { hasFeedback: true, minValue: 70 },
   },
@@ -554,46 +554,394 @@ When searching multiple chains, the response includes metadata:
 
 ## Agent Summary Properties
 
-The search returns `AgentSummary` objects with:
+`searchAgents()` returns `AgentSummary` objects. Below is the **complete** `AgentSummary` schema and field-by-field meaning.
 
 <Tabs>
 <TabItem label="Python">
 
 ```python
-agent.chainId          # 11155111
-agent.agentId         # "11155111:123"
-agent.name            # "My Agent"
-agent.description     # "Agent description"
-agent.image          # "https://..."
-agent.active         # True/False
-agent.owners         # ["0x..."]
-agent.operators      # ["0x..."]
-agent.walletAddress  # "0x..."
-agent.mcpTools       # ["tool1", "tool2"]
-agent.a2aSkills      # ["skill1", "skill2"]
+@dataclass
+class AgentSummary:
+    chainId: ChainId
+    agentId: AgentId
+    name: str
+    image: Optional[URI]
+    description: str
+    owners: List[Address]
+    operators: List[Address]
+    # Endpoint strings (present when advertised; not booleans)
+    mcp: Optional[str] = None
+    a2a: Optional[str] = None
+    web: Optional[str] = None
+    email: Optional[str] = None
+    ens: Optional[str]
+    did: Optional[str]
+    walletAddress: Optional[Address]
+    supportedTrusts: List[str]
+    a2aSkills: List[str]
+    mcpTools: List[str]
+    mcpPrompts: List[str]
+    mcpResources: List[str]
+    oasfSkills: List[str]
+    oasfDomains: List[str]
+    active: bool
+    x402support: bool
+    # Optional (subgraph fields / search-derived)
+    createdAt: Optional[int] = None
+    updatedAt: Optional[int] = None
+    lastActivity: Optional[int] = None
+    agentURI: Optional[str] = None
+    agentURIType: Optional[str] = None
+    feedbackCount: Optional[int] = None
+    averageValue: Optional[float] = None
+    semanticScore: Optional[float] = None
+    extras: Dict[str, Any] = field(default_factory=dict)
 ```
 
 </TabItem>
 <TabItem label="TypeScript">
 
 ```ts
-import type { AgentSummary } from 'agent0-sdk';
-
-agent.chainId          // 11155111
-agent.agentId         // "11155111:123"
-agent.name            // "My Agent"
-agent.description     // "Agent description"
-agent.image           // "https://..." | undefined
-agent.active          // true | false
-agent.owners          // ["0x..."]
-agent.operators       // ["0x..."]
-agent.walletAddress   // "0x..." | undefined
-agent.mcpTools        // ["tool1", "tool2"] | undefined
-agent.a2aSkills       // ["skill1", "skill2"] | undefined
+export interface AgentSummary {
+  chainId: number;
+  agentId: AgentId;
+  name: string;
+  image?: URI;
+  description: string;
+  owners: Address[];
+  operators: Address[];
+  // Endpoint strings (present when advertised; not booleans)
+  mcp?: string;
+  a2a?: string;
+  web?: string;
+  email?: string;
+  ens?: string;
+  did?: string;
+  walletAddress?: Address;
+  supportedTrusts: string[];
+  a2aSkills: string[];
+  mcpTools: string[];
+  mcpPrompts: string[];
+  mcpResources: string[];
+  oasfSkills: string[];
+  oasfDomains: string[];
+  active: boolean;
+  x402support: boolean;
+  // Optional (subgraph fields / search-derived)
+  createdAt?: number;
+  updatedAt?: number;
+  lastActivity?: number;
+  agentURI?: string;
+  agentURIType?: string;
+  feedbackCount?: number;
+  averageValue?: number;
+  semanticScore?: number;
+  extras: Record<string, any>;
+}
 ```
 
 </TabItem>
 </Tabs>
+
+| Field | Type (TS / Python) | When present | Source |
+| --- | --- | --- | --- |
+| `chainId` | `number` / `int` | Always | Subgraph `Agent.chainId` |
+| `agentId` | `AgentId` / `AgentId` | Always | Subgraph `Agent.id` normalized to `"chainId:agentId"` |
+| `name` | `string` / `str` | Always | Subgraph `Agent.registrationFile.name` |
+| `description` | `string` / `str` | Always | Subgraph `Agent.registrationFile.description` |
+| `image` | `URI?` / `Optional[URI]` | Optional | Subgraph `Agent.registrationFile.image` |
+| `owners` | `Address[]` / `List[Address]` | Always | Subgraph `Agent.owner` |
+| `operators` | `Address[]` / `List[Address]` | Always | Subgraph `Agent.operators` |
+| `active` | `boolean` / `bool` | Always | Subgraph `Agent.registrationFile.active` |
+| `x402support` | `boolean` / `bool` | Always | Subgraph `Agent.registrationFile.x402Support` (compat: `x402support`) |
+| `mcp` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.mcpEndpoint` |
+| `a2a` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.a2aEndpoint` |
+| `web` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.webEndpoint` |
+| `email` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.emailEndpoint` |
+| `ens` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.ens` |
+| `did` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.did` |
+| `walletAddress` | `Address?` / `Optional[Address]` | Optional | Subgraph `Agent.agentWallet` (on-chain metadata) |
+| `supportedTrusts` | `string[]` / `List[str]` | Always | Subgraph `Agent.registrationFile.supportedTrusts` |
+| `a2aSkills` | `string[]` / `List[str]` | Always | Subgraph `Agent.registrationFile.a2aSkills` |
+| `mcpTools` | `string[]` / `List[str]` | Always | Subgraph `Agent.registrationFile.mcpTools` |
+| `mcpPrompts` | `string[]` / `List[str]` | Always | Subgraph `Agent.registrationFile.mcpPrompts` |
+| `mcpResources` | `string[]` / `List[str]` | Always | Subgraph `Agent.registrationFile.mcpResources` |
+| `oasfSkills` | `string[]` / `List[str]` | Always (may be empty) | Subgraph `Agent.registrationFile.oasfSkills` |
+| `oasfDomains` | `string[]` / `List[str]` | Always (may be empty) | Subgraph `Agent.registrationFile.oasfDomains` |
+| `createdAt` | `number?` / `Optional[int]` | Optional | Subgraph `Agent.createdAt` |
+| `updatedAt` | `number?` / `Optional[int]` | Optional | Subgraph `Agent.updatedAt` |
+| `lastActivity` | `number?` / `Optional[int]` | Optional | Subgraph `Agent.lastActivity` |
+| `agentURI` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.agentURI` |
+| `agentURIType` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.agentURIType` |
+| `feedbackCount` | `number?` / `Optional[int]` | Optional | Subgraph `Agent.totalFeedback` |
+| `averageValue` | `number?` / `Optional[float]` | Optional | Computed by unified search feedback prefilter for the current query |
+| `semanticScore` | `number?` / `Optional[float]` | Optional | Returned only for keyword searches (semantic prefilter score) |
+| `extras` | `Record` / `Dict[str, Any]` | Always | Reserved for experimental/extra fields |
+
+## Exhaustive Search Reference (all filters + all options)
+
+This section duplicates the full unified search surface so you can copy/paste filters and options without jumping to other pages.
+
+### FeedbackFilters
+
+All reputation filtering is expressed under `SearchFilters.feedback`.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+@dataclass
+class FeedbackFilters:
+    hasFeedback: Optional[bool] = None
+    hasNoFeedback: Optional[bool] = None
+    includeRevoked: Optional[bool] = None
+    minValue: Optional[float] = None
+    maxValue: Optional[float] = None
+    minCount: Optional[int] = None
+    maxCount: Optional[int] = None
+    fromReviewers: Optional[List[Address]] = None
+    endpoint: Optional[str] = None          # substring match
+    hasResponse: Optional[bool] = None
+    tag1: Optional[str] = None
+    tag2: Optional[str] = None
+    tag: Optional[str] = None               # matches tag1 OR tag2
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+export interface FeedbackFilters {
+  hasFeedback?: boolean;
+  hasNoFeedback?: boolean;
+  includeRevoked?: boolean;
+  minValue?: number;
+  maxValue?: number;
+  minCount?: number;
+  maxCount?: number;
+  fromReviewers?: Address[];
+  endpoint?: string; // substring match
+  hasResponse?: boolean;
+  tag1?: string;
+  tag2?: string;
+  tag?: string; // matches tag1 OR tag2
+}
+```
+
+</TabItem>
+</Tabs>
+
+| Field | Semantics |
+| --- | --- |
+| `hasFeedback` | Only agents with at least 1 feedback |
+| `hasNoFeedback` | Only agents with 0 feedback |
+| `includeRevoked` | Include revoked feedback entries in the pool used for filtering |
+| `minValue` / `maxValue` | Threshold on **average value** over feedback matching the other feedback constraints (inclusive) |
+| `minCount` / `maxCount` | Threshold on **count** of feedback matching the other feedback constraints (inclusive) |
+| `fromReviewers` | Only consider feedback from these reviewer wallets |
+| `endpoint` | Only consider feedback where `endpoint` contains this substring |
+| `hasResponse` | Only consider feedback that has at least one response (if supported) |
+| `tag1` / `tag2` | Only consider feedback with matching tag1/tag2 |
+| `tag` | Shorthand: match either tag1 OR tag2 |
+
+### SearchFilters
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+DateLike = Union[datetime, str, int]
+
+@dataclass
+class SearchFilters:
+    # Chain / identity
+    chains: Optional[Union[List[ChainId], Literal["all"]]] = None
+    agentIds: Optional[List[AgentId]] = None
+
+    # Text
+    name: Optional[str] = None              # substring
+    description: Optional[str] = None       # substring
+
+    # Owners / operators
+    owners: Optional[List[Address]] = None
+    operators: Optional[List[Address]] = None
+
+    # Endpoint existence
+    hasRegistrationFile: Optional[bool] = None
+    hasWeb: Optional[bool] = None
+    hasMCP: Optional[bool] = None
+    hasA2A: Optional[bool] = None
+    hasOASF: Optional[bool] = None
+    hasEndpoints: Optional[bool] = None
+
+    # Endpoint substring contains
+    webContains: Optional[str] = None
+    mcpContains: Optional[str] = None
+    a2aContains: Optional[str] = None
+    ensContains: Optional[str] = None
+    didContains: Optional[str] = None
+
+    # Wallet
+    walletAddress: Optional[Address] = None
+
+    # Capability arrays (ANY semantics)
+    supportedTrust: Optional[List[str]] = None
+    a2aSkills: Optional[List[str]] = None
+    mcpTools: Optional[List[str]] = None
+    mcpPrompts: Optional[List[str]] = None
+    mcpResources: Optional[List[str]] = None
+    oasfSkills: Optional[List[str]] = None
+    oasfDomains: Optional[List[str]] = None
+
+    # Status
+    active: Optional[bool] = None
+    x402support: Optional[bool] = None
+
+    # Time filters
+    registeredAtFrom: Optional[DateLike] = None
+    registeredAtTo: Optional[DateLike] = None
+    updatedAtFrom: Optional[DateLike] = None
+    updatedAtTo: Optional[DateLike] = None
+
+    # Metadata filters (two-phase)
+    hasMetadataKey: Optional[str] = None
+    metadataValue: Optional[Dict[str, str]] = None  # { key, value }
+
+    # Semantic search
+    keyword: Optional[str] = None
+
+    # Feedback filters (two-phase)
+    feedback: Optional[FeedbackFilters] = None
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+export interface SearchFilters {
+  // Chain / identity
+  chains?: number[] | 'all';
+  agentIds?: AgentId[];
+
+  // Text
+  name?: string; // substring
+  description?: string; // substring
+
+  // Owners / operators
+  owners?: Address[];
+  operators?: Address[];
+
+  // Endpoint existence
+  hasRegistrationFile?: boolean;
+  hasWeb?: boolean;
+  hasMCP?: boolean;
+  hasA2A?: boolean;
+  hasOASF?: boolean;
+  hasEndpoints?: boolean;
+
+  // Endpoint substring contains
+  webContains?: string;
+  mcpContains?: string;
+  a2aContains?: string;
+  ensContains?: string;
+  didContains?: string;
+
+  // Wallet
+  walletAddress?: Address;
+
+  // Capability arrays (ANY semantics)
+  supportedTrust?: string[];
+  a2aSkills?: string[];
+  mcpTools?: string[];
+  mcpPrompts?: string[];
+  mcpResources?: string[];
+  oasfSkills?: string[];
+  oasfDomains?: string[];
+
+  // Status
+  active?: boolean;
+  x402support?: boolean;
+
+  // Time filters
+  registeredAtFrom?: Date | string | number;
+  registeredAtTo?: Date | string | number;
+  updatedAtFrom?: Date | string | number;
+  updatedAtTo?: Date | string | number;
+
+  // Metadata filters (two-phase)
+  hasMetadataKey?: string;
+  metadataValue?: { key: string; value: string };
+
+  // Semantic search
+  keyword?: string;
+
+  // Feedback filters (two-phase)
+  feedback?: FeedbackFilters;
+}
+```
+
+</TabItem>
+</Tabs>
+
+| Field | Semantics |
+| --- | --- |
+| `chains` | `undefined` uses SDK default chain; list queries those chains; `"all"` queries all configured chains |
+| `agentIds` | Only these agent IDs (`"chainId:agentId"`) |
+| `name` / `description` | Case-insensitive substring match |
+| `owners` / `operators` | Match agent owner or any operator |
+| `hasRegistrationFile` | Require a registration file |
+| `hasWeb` / `hasMCP` / `hasA2A` / `hasOASF` | Require that endpoint type is present |
+| `hasEndpoints` | Require at least one of {web, email, mcp, a2a, oasf} |
+| `webContains` / `mcpContains` / `a2aContains` / `ensContains` / `didContains` | Case-insensitive substring match for those endpoint strings |
+| `walletAddress` | Exact match for the agent wallet address (if set) |
+| `supportedTrust` | ANY-of: agent supports at least one trust model string |
+| `a2aSkills` / `mcpTools` / `mcpPrompts` / `mcpResources` / `oasfSkills` / `oasfDomains` | ANY-of: matches at least one listed element |
+| `active` / `x402support` | Boolean filters |
+| `registeredAtFrom/To` | Inclusive timestamp range over agent `createdAt` |
+| `updatedAtFrom/To` | Inclusive timestamp range over agent `updatedAt` |
+| `hasMetadataKey` | Require an on-chain metadata entry with this key (two-phase prefilter) |
+| `metadataValue` | Require metadata key/value exact match (two-phase prefilter) |
+| `keyword` | Semantic keyword prefilter via external semantic-search endpoint |
+| `feedback` | Unified reputation filtering (see `FeedbackFilters`) |
+
+### SearchOptions
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+@dataclass
+class SearchOptions:
+    sort: Optional[List[str]] = None
+    pageSize: Optional[int] = None
+    cursor: Optional[str] = None
+    semanticMinScore: Optional[float] = None
+    semanticTopK: Optional[int] = None
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+export interface SearchOptions {
+  sort?: string[];
+  pageSize?: number;
+  cursor?: string;
+  semanticMinScore?: number;
+  semanticTopK?: number;
+}
+```
+
+</TabItem>
+</Tabs>
+
+| Field | Semantics |
+| --- | --- |
+| `pageSize` | Max number of returned agents in this page |
+| `cursor` | Opaque cursor returned by prior call; pass back to continue paging |
+| `sort` | List of sort keys: `\"field:asc\"` or `\"field:desc\"` |
+| `semanticMinScore` | Minimum semantic score cutoff (keyword searches only) |
+| `semanticTopK` | Limits semantic prefilter size (semantic endpoint has no cursor) |
 
 ## Advanced Search
 

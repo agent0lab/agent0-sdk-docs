@@ -91,25 +91,68 @@ type AgentRegistrationFile {
   id: ID!                    # Format: "transactionHash:cid"
   cid: String!               # IPFS CID (for querying by content)
   agentId: String!
+  # Presentation fields
   name: String
   description: String
   image: String
   active: Boolean
   x402Support: Boolean
   supportedTrusts: [String!]!
+
+  # Endpoints
+  endpointsRawJson: String
   mcpEndpoint: String
   mcpVersion: String
   a2aEndpoint: String
   a2aVersion: String
+  webEndpoint: String
+  emailEndpoint: String
+
+  # OASF (Open Agentic Schema Framework)
+  oasfEndpoint: String
+  oasfVersion: String
+  oasfSkills: [String!]!
+  oasfDomains: [String!]!
+  hasOASF: Boolean!          # derived: true if oasfSkills OR oasfDomains non-empty
+
+  # External identifiers
   ens: String
   did: String
+
+  # Capabilities
   mcpTools: [String!]!
   mcpPrompts: [String!]!
   mcpResources: [String!]!
   a2aSkills: [String!]!
+
   createdAt: BigInt!
 }
 ```
+
+## SDK search filters → subgraph fields
+
+The unified SDK `searchAgents()` pushes many filters down into the subgraph query (`where` clause). Some filters are implemented as **two-phase prefilters** (SDK first queries IDs/stats, then constrains the agent query).
+
+| SDK filter | Subgraph field(s) | Notes |
+| --- | --- | --- |
+| `name` / `description` | `AgentRegistrationFile.name` / `AgentRegistrationFile.description` | `*_contains_nocase` when supported |
+| `hasMCP` / `mcpContains` | `AgentRegistrationFile.mcpEndpoint` | Existence + substring |
+| `hasA2A` / `a2aContains` | `AgentRegistrationFile.a2aEndpoint` | Existence + substring |
+| `hasWeb` / `webContains` | `AgentRegistrationFile.webEndpoint` | Existence + substring |
+| `ensContains` | `AgentRegistrationFile.ens` | Substring |
+| `didContains` | `AgentRegistrationFile.did` | Substring |
+| `hasOASF` | `AgentRegistrationFile.hasOASF` | Exact semantics: skills/domains non-empty (SDK falls back for older subgraphs) |
+| `oasfSkills` / `oasfDomains` | `AgentRegistrationFile.oasfSkills` / `AgentRegistrationFile.oasfDomains` | List-contains |
+| `mcpTools` / `mcpPrompts` / `mcpResources` | `AgentRegistrationFile.mcpTools` / etc. | List-contains |
+| `a2aSkills` | `AgentRegistrationFile.a2aSkills` | List-contains |
+| `supportedTrust` | `AgentRegistrationFile.supportedTrusts` | List-contains |
+| `active` / `x402support` | `AgentRegistrationFile.active` / `AgentRegistrationFile.x402Support` | Boolean |
+| `owners` / `operators` | `Agent.owner` / `Agent.operators` | Wallet addresses (bytes) |
+| `walletAddress` | `Agent.agentWallet` | On-chain metadata |
+| `registeredAtFrom/To` | `Agent.createdAt` | Time filter |
+| `updatedAtFrom/To` | `Agent.updatedAt` | Time filter |
+| `hasMetadataKey` / `metadataValue` | `AgentMetadata` | **Two-phase** prefilter (SDK queries metadata IDs) |
+| `feedback.*` thresholds | `Feedback` + `Agent.totalFeedback` | Mostly **two-phase** (SDK queries IDs/stats); `hasFeedback/hasNoFeedback` can be pushed down via `Agent.totalFeedback` |
 
 ### FeedbackFile
 

@@ -87,9 +87,9 @@ Agent0 SDK provides a unified interface for managing agent identities, enabling 
 
 **Search process:**
 
-- **Query Preparation** → Developer calls `SDK.searchAgents(params)`
+- **Query Preparation** → Developer calls `SDK.searchAgents(filters, options)`
 
-- Builds search parameters (name, capabilities, trust models, etc.)
+- Builds unified search parameters (agent filters + optional feedback/reputation filters + optional semantic keyword prefilter)
 
 - **Search Execution** → SDK queries subgraph
 

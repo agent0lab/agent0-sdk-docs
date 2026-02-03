@@ -20,7 +20,7 @@ sdk = SDK(
 )
 
 # All search operations use the subgraph automatically
-results = sdk.searchAgents(name="AI")
+results = sdk.searchAgents(filters={"name": "AI"})
 ```
 
 </TabItem>

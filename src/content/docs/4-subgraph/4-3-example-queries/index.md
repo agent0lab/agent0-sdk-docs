@@ -257,3 +257,103 @@ Example GraphQL queries for the Agent0 subgraph.
   }
 }
 ```
+
+## Agent search with nested `registrationFile_` filters (SDK-style pushdown)
+
+The SDK typically queries `agents(where: { ... agent fields ..., registrationFile_: { ... } })` so it can combine on-chain fields (owner/operators/wallet/timestamps) with registration-file fields (endpoints/capabilities/trust models).
+
+```graphql
+{
+  agents(
+    where: {
+      createdAt_gte: "1735689600" # 2025-01-01 (unix seconds)
+      updatedAt_lte: "1798761600" # 2026-12-31 (unix seconds)
+      registrationFile_: {
+        active: true
+        mcpEndpoint_not: null
+        mcpEndpoint_contains_nocase: "mcp"
+        webEndpoint_not: null
+        hasOASF: true
+      }
+    }
+    first: 20
+    orderBy: updatedAt
+    orderDirection: desc
+  ) {
+    id
+    chainId
+    agentId
+    owner
+    operators
+    createdAt
+    updatedAt
+    totalFeedback
+    registrationFile {
+      name
+      mcpEndpoint
+      webEndpoint
+      hasOASF
+      oasfSkills
+      oasfDomains
+    }
+  }
+}
+```
+
+## Feedback prefilter query (used by unified reputation search)
+
+Unified `searchAgents(filters.feedback=...)` can prefilter agents by scanning feedback entries and computing per-agent counts/averages for the current query.
+
+```graphql
+{
+  feedbacks(
+    where: {
+      isRevoked: false
+      endpoint_contains_nocase: "https://"
+      or: [{ tag1: "enterprise" }, { tag2: "enterprise" }]
+    }
+    first: 1000
+    skip: 0
+    orderBy: createdAt
+    orderDirection: desc
+  ) {
+    agent { id }
+    clientAddress
+    value
+    tag1
+    tag2
+    endpoint
+    responses { id }
+  }
+}
+```
+
+## Metadata prefilter query (SDK two-phase metadata filtering)
+
+Metadata filters (`hasMetadataKey`, `metadataValue`) are implemented as a two-phase flow: first query metadata rows to get matching agent IDs, then constrain the agent search to that allowlist.
+
+### Variant A: `agentMetadatas` (newer deployments)
+
+```graphql
+{
+  agentMetadatas(where: { key: "category" }, first: 1000, skip: 0) {
+    agent { id }
+    key
+    value
+    updatedAt
+  }
+}
+```
+
+### Variant B: `agentMetadata_collection` (mainnet deployment compatibility)
+
+```graphql
+{
+  agentMetadata_collection(where: { key: "category" }, first: 1000, skip: 0) {
+    agent { id }
+    key
+    value
+    updatedAt
+  }
+}
+```

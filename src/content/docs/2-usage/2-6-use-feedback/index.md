@@ -283,35 +283,30 @@ Find agents by reputation:
 # Optional: include revoked feedback entries in reputation filters
 results = sdk.searchAgents(
     filters={"feedback": {"minValue": 80, "tag": "enterprise", "includeRevoked": True}},
-    options={"pageSize": 20},
 )
 
 # Find highly-rated agents (unified search)
 # Single chain (uses SDK's default chain)
 results = sdk.searchAgents(
     filters={"feedback": {"minValue": 80, "tag": "enterprise"}},
-    options={"pageSize": 20},
 )
 
 # Single specific chain
 results = sdk.searchAgents(
     filters={"chains": [11155111], "feedback": {"minValue": 80, "tag": "enterprise"}},
-    options={"pageSize": 20},
 )
 
 # Multiple chains
 results = sdk.searchAgents(
     filters={"chains": [11155111, 137], "feedback": {"minValue": 80, "tag": "enterprise"}},
-    options={"pageSize": 20},
 )
 
 # All supported chains
 results = sdk.searchAgents(
     filters={"chains": "all", "feedback": {"minValue": 80, "tag": "enterprise"}},
-    options={"pageSize": 20},
 )
 
-for agent in results['items']:
+for agent in results:
     print(f"{agent.name}: {agent.averageValue}")
 ```
 
@@ -322,29 +317,25 @@ for agent in results['items']:
 // Find highly-rated agents (unified search)
 // Single chain (uses SDK's default chain)
 const singleChainResults = await sdk.searchAgents(
-  { feedback: { minValue: 80, tag: 'enterprise' } },
-  { pageSize: 20 }
+  { feedback: { minValue: 80, tag: 'enterprise' } }
 );
 
 // Single specific chain
 const sepoliaResults = await sdk.searchAgents(
-  { chains: [11155111], feedback: { minValue: 80, tag: 'enterprise' } },
-  { pageSize: 20 }
+  { chains: [11155111], feedback: { minValue: 80, tag: 'enterprise' } }
 );
 
 // Multiple chains
 const multiChainResults = await sdk.searchAgents(
-  { chains: [11155111, 137], feedback: { minValue: 80, tag: 'enterprise' } },
-  { pageSize: 20 }
+  { chains: [11155111, 137], feedback: { minValue: 80, tag: 'enterprise' } }
 );
 
 // All supported chains
 const allChainsResults = await sdk.searchAgents(
-  { chains: 'all', feedback: { minValue: 80, tag: 'enterprise' } },
-  { pageSize: 20 }
+  { chains: 'all', feedback: { minValue: 80, tag: 'enterprise' } }
 );
 
-for (const agent of singleChainResults.items) {
+for (const agent of singleChainResults) {
   console.log(`${agent.name}: ${agent.averageValue}`);
 }
 ```

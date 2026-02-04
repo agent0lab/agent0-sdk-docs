@@ -663,7 +663,7 @@ export interface SearchFilters {
 | `keyword` | Semantic keyword prefilter via external semantic-search endpoint | **Two-phase** semantic prefilter (IDs + scores) |
 | `feedback` | Reputation filtering for agents | **Two-phase** feedback prefilter (with limited pushdown for `hasFeedback/hasNoFeedback` when used alone) |
 
-### SearchOptions (paging/sort)
+### SearchOptions (sort)
 
 <Tabs>
 <TabItem label="Python">
@@ -672,8 +672,6 @@ export interface SearchFilters {
 @dataclass
 class SearchOptions:
     sort: Optional[List[str]] = None
-    pageSize: Optional[int] = None
-    cursor: Optional[str] = None
     semanticMinScore: Optional[float] = None
     semanticTopK: Optional[int] = None
 ```
@@ -684,8 +682,6 @@ class SearchOptions:
 ```ts
 export interface SearchOptions {
   sort?: string[];            // e.g. ["averageValue:desc", "updatedAt:desc"]
-  pageSize?: number;          // default differs by SDK; keep small for multi-chain
-  cursor?: string;            // single-chain: offset string; multi-chain: per-chain cursor JSON
   semanticMinScore?: number;  // only for keyword searches
   semanticTopK?: number;      // only for keyword searches (semantic endpoint has no cursor)
 }
@@ -696,8 +692,6 @@ export interface SearchOptions {
 
 | Field | Semantics |
 | --- | --- |
-| `pageSize` | Max number of returned agents in this page |
-| `cursor` | Opaque cursor returned by prior call; pass back to continue paging |
 | `sort` | List of sort keys (stable): `\"field:asc\"` or `\"field:desc\"`. Common keys: `updatedAt`, `createdAt`, `lastActivity`, `averageValue`, `feedbackCount`, `semanticScore`, `name` |
 | `semanticMinScore` | Minimum semantic score cutoff (keyword searches only) |
 | `semanticTopK` | Limits semantic prefilter size. Important because the semantic endpoint does not provide cursors; large keyword queries may require raising this. |

@@ -20,7 +20,7 @@ sdk = SDK(
 
 # Search by name (substring match)
 results = sdk.searchAgents(name="AI")
-print(f"Found {len(results['items'])} agents")
+print(f"Found {len(results)} agents")
 ```
 
 </TabItem>
@@ -37,7 +37,7 @@ const sdk = new SDK({
 
 // Search by name (substring match) - async in TypeScript
 const results = await sdk.searchAgents({ name: 'AI' });
-console.log(`Found ${results.items.length} agents`);
+console.log(`Found ${results.length} agents`);
 ```
 
 </TabItem>
@@ -55,7 +55,6 @@ Use `keyword` to prefilter agents using the external semantic search endpoint, t
 ```python
 results = sdk.searchAgents(
     filters={"keyword": "market analysis", "chains": [1]},
-    options={"pageSize": 20},
 )
 ```
 
@@ -64,8 +63,7 @@ results = sdk.searchAgents(
 
 ```ts
 const results = await sdk.searchAgents(
-  { keyword: 'market analysis', chains: [1] },
-  { pageSize: 20 }
+  { keyword: 'market analysis', chains: [1] }
 );
 ```
 
@@ -239,7 +237,7 @@ results = sdk.searchAgents(
             "endpoint": "gekkoterminal",
         },
     },
-    options={"pageSize": 20, "sort": ["averageValue:desc"]},
+    options={"sort": ["averageValue:desc"]},
 )
 ```
 
@@ -259,7 +257,7 @@ const results = await sdk.searchAgents(
       endpoint: 'gekkoterminal',
     },
   },
-  { pageSize: 20, sort: ['averageValue:desc'] }
+  { sort: ['averageValue:desc'] }
 );
 ```
 
@@ -276,7 +274,6 @@ Metadata filters query `AgentMetadata` first, then constrain the agent query.
 ```python
 results = sdk.searchAgents(
     filters={"hasMetadataKey": "agentWallet"},
-    options={"pageSize": 20},
 )
 ```
 
@@ -285,8 +282,7 @@ results = sdk.searchAgents(
 
 ```ts
 const results = await sdk.searchAgents(
-  { hasMetadataKey: 'agentWallet' },
-  { pageSize: 20 }
+  { hasMetadataKey: 'agentWallet' }
 );
 ```
 
@@ -309,7 +305,6 @@ results = sdk.searchAgents(
         "hasMCP": True,
         "feedback": {"hasFeedback": True, "minValue": 70},
     },
-    options={"pageSize": 20},
 )
 ```
 
@@ -327,30 +322,22 @@ const results = await sdk.searchAgents(
     hasMCP: true,
     feedback: { hasFeedback: true, minValue: 70 },
   },
-  { pageSize: 20 }
 );
 ```
 
 </TabItem>
 </Tabs>
 
-## Pagination and Sorting
+## Sorting (No Pagination)
 
 <Tabs>
 <TabItem label="Python">
 
 ```python
-# Paginated search
-results = sdk.searchAgents(
-    filters={},
-    options={
-        "pageSize": 20,
-        "cursor": results.get("nextCursor"),  # For next page
-        "sort": ["updatedAt:desc"],  # Sort by most recently updated
-    },
-)
+# Sorting (returns all matching results)
+results = sdk.searchAgents(filters={}, options={"sort": ["updatedAt:desc"]})
 
-for agent in results['items']:
+for agent in results:
     print(f"{agent.name}: {agent.description}")
 ```
 
@@ -358,15 +345,10 @@ for agent in results['items']:
 <TabItem label="TypeScript">
 
 ```ts
-// Paginated search
-let cursor: string | undefined;
-const results = await sdk.searchAgents({}, {
-  sort: ['updatedAt:desc'], // Sort by most recently updated
-  pageSize: 20,
-  cursor, // For next page (set cursor = results.nextCursor)
-});
+// Sorting (returns all matching results)
+const results = await sdk.searchAgents({}, { sort: ['updatedAt:desc'] });
 
-for (const agent of results.items) {
+for (const agent of results) {
   console.log(`${agent.name}: ${agent.description}`);
 }
 ```
@@ -510,47 +492,7 @@ const results = await sdk.searchAgents({
 
 ### Multi-Chain Response Format
 
-When searching multiple chains, the response includes metadata:
-
-<Tabs>
-<TabItem label="Python">
-
-```python
-{
-    "items": [AgentSummary, ...],  # Agents from all requested chains
-    "nextCursor": "20",  # Pagination cursor
-    "meta": {  # Only present for multi-chain queries
-        "chains": [11155111],  # Chains that were queried
-        "successfulChains": [11155111],  # Chains that returned results
-        "failedChains": [],  # Chains that failed (if any)
-        "totalResults": 15,  # Total agents found
-        "timing": {"totalMs": 234}  # Query time in milliseconds
-    }
-}
-```
-
-</TabItem>
-<TabItem label="TypeScript">
-
-```ts
-{
-  items: AgentSummary[],  // Agents from all requested chains
-  nextCursor?: string,     // Pagination cursor
-  meta?: {                  // Only present for multi-chain queries
-    chains: number[],       // Chains that were queried
-    successfulChains: number[],  // Chains that returned results
-    failedChains: number[],      // Chains that failed (if any)
-    totalResults: number,    // Total agents found
-    timing: {
-      totalMs: number,      // Total query time in milliseconds
-      averagePerChainMs?: number  // Average time per chain
-    }
-  }
-}
-```
-
-</TabItem>
-</Tabs>
+`searchAgents()` always returns a **plain list** of `AgentSummary` (even for multi-chain queries). The list may contain agents from multiple chains when you set `filters.chains` to a list or `'all'`.
 
 ## Agent Summary Properties
 
@@ -913,8 +855,6 @@ export interface SearchFilters {
 @dataclass
 class SearchOptions:
     sort: Optional[List[str]] = None
-    pageSize: Optional[int] = None
-    cursor: Optional[str] = None
     semanticMinScore: Optional[float] = None
     semanticTopK: Optional[int] = None
 ```
@@ -925,8 +865,6 @@ class SearchOptions:
 ```ts
 export interface SearchOptions {
   sort?: string[];
-  pageSize?: number;
-  cursor?: string;
   semanticMinScore?: number;
   semanticTopK?: number;
 }
@@ -937,8 +875,6 @@ export interface SearchOptions {
 
 | Field | Semantics |
 | --- | --- |
-| `pageSize` | Max number of returned agents in this page |
-| `cursor` | Opaque cursor returned by prior call; pass back to continue paging |
 | `sort` | List of sort keys: `\"field:asc\"` or `\"field:desc\"` |
 | `semanticMinScore` | Minimum semantic score cutoff (keyword searches only) |
 | `semanticTopK` | Limits semantic prefilter size (semantic endpoint has no cursor) |
@@ -958,7 +894,7 @@ results = sdk.searchAgents(
         "supportedTrust": ["reputation"],
         "feedback": {"hasFeedback": True},
     },
-    options={"pageSize": 20, "sort": ["updatedAt:desc"]},
+    options={"sort": ["updatedAt:desc"]},
 )
 ```
 
@@ -977,7 +913,7 @@ const filters: SearchFilters = {
   supportedTrust: ['reputation'],
   feedback: { hasFeedback: true },
 };
-const options: SearchOptions = { pageSize: 20, sort: ['updatedAt:desc'] };
+const options: SearchOptions = { sort: ['updatedAt:desc'] };
 
 const results = await sdk.searchAgents(filters, options);
 ```

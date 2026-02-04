@@ -22,7 +22,7 @@ sdk = SDK(
 
 # Find all agents with MCP endpoints
 results = sdk.searchAgents(filters={"hasMCP": True})
-for agent in results['items']:
+for agent in results:
     print(f"{agent.name} - MCP enabled")
 ```
 
@@ -42,7 +42,7 @@ async function main() {
 
   // Find all agents with MCP endpoints (async in TypeScript)
   const results = await sdk.searchAgents({ hasMCP: true });
-  for (const agent of results.items) {
+  for (const agent of results) {
     console.log(`${agent.name} - MCP enabled`);
   }
 }
@@ -219,8 +219,6 @@ export interface SearchFilters {
 @dataclass
 class SearchOptions:
     sort: Optional[List[str]] = None
-    pageSize: Optional[int] = None
-    cursor: Optional[str] = None
     semanticMinScore: Optional[float] = None
     semanticTopK: Optional[int] = None
 ```
@@ -231,8 +229,6 @@ class SearchOptions:
 ```ts
 export interface SearchOptions {
   sort?: string[];
-  pageSize?: number;
-  cursor?: string;
   semanticMinScore?: number;
   semanticTopK?: number;
 }
@@ -249,7 +245,7 @@ export interface SearchOptions {
 ```python
 # Python developers
 results = sdk.searchAgents(filters={"a2aSkills": ["python"]})
-print(f"Found {len(results['items'])} Python agents")
+print(f"Found {len(results)} Python agents")
 ```
 
 </TabItem>
@@ -258,7 +254,7 @@ print(f"Found {len(results['items'])} Python agents")
 ```ts
 // Python developers (async in TypeScript)
 const results = await sdk.searchAgents({ a2aSkills: ['python'] });
-console.log(`Found ${results.items.length} Python agents`);
+console.log(`Found ${results.length} Python agents`);
 ```
 
 </TabItem>
@@ -273,9 +269,9 @@ console.log(`Found ${results.items.length} Python agents`);
 # Top-rated agents
 results = sdk.searchAgents(
     filters={"feedback": {"minValue": 90, "tag": "enterprise", "includeRevoked": False}},
-    options={"pageSize": 20, "sort": ["averageValue:desc"]},
+    options={"sort": ["averageValue:desc"]},
 )
-for agent in results['items']:
+for agent in results:
     print(f"{agent.name}: {agent.averageValue}")
 ```
 
@@ -286,9 +282,9 @@ for agent in results['items']:
 // Top-rated agents (async in TypeScript)
 const results = await sdk.searchAgents(
   { feedback: { minValue: 90, tag: 'enterprise', includeRevoked: false } },
-  { pageSize: 20, sort: ['averageValue:desc'] }
+  { sort: ['averageValue:desc'] }
 );
-for (const agent of results.items) {
+for (const agent of results) {
   console.log(`${agent.name}: ${agent.averageValue}`);
 }
 ```
@@ -312,10 +308,10 @@ results = sdk.searchAgents(
         "supportedTrust": ["reputation"],
         "feedback": {"hasFeedback": True, "minValue": 70},
     },
-    options={"pageSize": 20, "sort": ["updatedAt:desc"]},
+    options={"sort": ["updatedAt:desc"]},
 )
 
-print(f"Found {len(results['items'])} matching agents")
+print(f"Found {len(results)} matching agents")
 ```
 
 </TabItem>
@@ -332,23 +328,23 @@ const results = await sdk.searchAgents(
   supportedTrust: ['reputation'],
     feedback: { hasFeedback: true, minValue: 70 },
   },
-  { pageSize: 20, sort: ['updatedAt:desc'] }
+  { sort: ['updatedAt:desc'] }
 );
 
-console.log(`Found ${results.items.length} matching agents`);
+console.log(`Found ${results.length} matching agents`);
 ```
 
 </TabItem>
 </Tabs>
 
-## Kitchen Sink (Endpoints + Time + Metadata + Feedback + Sorting + Cursor)
+## Kitchen Sink (Endpoints + Time + Metadata + Feedback + Sorting)
 
 One query combining many of the unified search features:
 - Endpoint existence + substring matching
 - Time range filters
 - Metadata prefilter
 - Feedback-based reputation filtering (tags + endpoint + reviewers + thresholds)
-- Sorting and pagination cursor
+- Sorting
 
 <Tabs>
 <TabItem label="Python">
@@ -380,13 +376,11 @@ results = sdk.searchAgents(
         },
     },
     options={
-        "pageSize": 25,
         "sort": ["averageValue:desc", "updatedAt:desc"],
     },
 )
 
-print(f"Returned {len(results['items'])} agents")
-print("Next cursor:", results.get("nextCursor"))
+print(f"Returned {len(results)} agents")
 ```
 
 </TabItem>
@@ -418,11 +412,10 @@ async function main() {
         minCount: 3,
       },
     },
-    { pageSize: 25, sort: ['averageValue:desc', 'updatedAt:desc'] }
+    { sort: ['averageValue:desc', 'updatedAt:desc'] }
   );
 
-  console.log(`Returned ${results.items.length} agents`);
-  console.log('Next cursor:', results.nextCursor);
+  console.log(`Returned ${results.length} agents`);
 }
 
 main().catch(console.error);
@@ -433,45 +426,4 @@ main().catch(console.error);
 
 ## Pagination
 
-<Tabs>
-<TabItem label="Python">
-
-```python
-# Paginated results
-cursor = None
-all_agents = []
-
-while True:
-    results = sdk.searchAgents(filters={}, options={"pageSize": 50, "cursor": cursor})
-    all_agents.extend(results['items'])
-
-    cursor = results.get('nextCursor')
-    if not cursor:
-        break
-
-print(f"Total agents: {len(all_agents)}")
-```
-
-</TabItem>
-<TabItem label="TypeScript">
-
-```ts
-// Paginated results (async in TypeScript)
-let cursor: string | undefined;
-const allAgents = [];
-
-while (true) {
-  const results = await sdk.searchAgents({}, { pageSize: 50, cursor });
-  allAgents.push(...results.items);
-
-  cursor = results.nextCursor;
-  if (!cursor) {
-    break;
-  }
-}
-
-console.log(`Total agents: ${allAgents.length}`);
-```
-
-</TabItem>
-</Tabs>
+Pagination has been removed. `searchAgents()` returns **all matching results** as a plain list.

@@ -133,7 +133,7 @@ results = sdk.searchAgents(
     filters: Union[SearchFilters, Dict, None] = None,
     options: Union[SearchOptions, Dict, None] = None,
     **kwargs
-) -> Dict[str, Any]
+) -> List[AgentSummary]
 ```
 
 </TabItem>
@@ -143,7 +143,7 @@ results = sdk.searchAgents(
 import { SDK } from 'agent0-sdk';
 import type { SearchFilters, SearchOptions, AgentSummary } from 'agent0-sdk';
 
-const results: { items: AgentSummary[]; nextCursor?: string } = await sdk.searchAgents(
+const results: AgentSummary[] = await sdk.searchAgents(
   filters?: SearchFilters,
   options?: SearchOptions
 );
@@ -156,7 +156,7 @@ const results: { items: AgentSummary[]; nextCursor?: string } = await sdk.search
 
 `searchAgents(filters, options)` is the unified entrypoint that blends agent discovery + reputation filtering.
 
-**Multi-chain note:** `filters.chains` enables multi-chain execution. When multi-chain is used, the response includes a `meta` object with chain/timing data, and the returned `nextCursor` is an opaque per-chain cursor string.
+**Multi-chain note:** `filters.chains` enables multi-chain execution. Results are returned as a flat `AgentSummary[]` containing agents from all queried chains.
 
 ##### `SearchFilters`
 
@@ -360,8 +360,6 @@ export interface FeedbackFilters {
 @dataclass
 class SearchOptions:
     sort: Optional[List[str]] = None
-    pageSize: Optional[int] = None
-    cursor: Optional[str] = None
     semanticMinScore: Optional[float] = None
     semanticTopK: Optional[int] = None
 ```
@@ -372,8 +370,6 @@ class SearchOptions:
 ```ts
 export interface SearchOptions {
   sort?: string[];
-  pageSize?: number;
-  cursor?: string;
   semanticMinScore?: number;
   semanticTopK?: number;
 }
@@ -384,21 +380,17 @@ export interface SearchOptions {
 
 | Field | Semantics |
 | --- | --- |
-| `pageSize` | Max number of returned agents in this page |
-| `cursor` | Opaque cursor returned by prior call; pass back to continue paging |
 | `sort` | List of sort keys: `\"field:asc\"` or `\"field:desc\"` |
 | `semanticMinScore` | Minimum semantic score cutoff (keyword searches only) |
 | `semanticTopK` | Limits semantic prefilter size (semantic endpoint has no cursor) |
 
 #### Returns
 
-- `items`: `AgentSummary[]`
-- `nextCursor` (optional): cursor for the next page
-- `meta` (optional, only multi-chain): chains queried, success/failure, timing
+- `AgentSummary[]`
 
-#### AgentSummary (returned items)
+#### AgentSummary (returned values)
 
-`items` contains `AgentSummary` objects. Endpoint fields (`mcp`, `a2a`, `web`, `email`) are **endpoint strings** when present (not booleans).
+`searchAgents()` returns `AgentSummary` objects. Endpoint fields (`mcp`, `a2a`, `web`, `email`) are **endpoint strings** when present (not booleans).
 
 <Tabs>
 <TabItem label="Python">
@@ -733,7 +725,6 @@ results = sdk.searchAgents(
             "includeRevoked": False,
         },
     },
-    options={"pageSize": 50},
 )
 ```
 
@@ -745,8 +736,7 @@ const results = await sdk.searchAgents(
   {
     chains: 'all',
     feedback: { minValue: 80, tag: 'enterprise', includeRevoked: false },
-  },
-  { pageSize: 50 }
+  }
 );
 ```
 

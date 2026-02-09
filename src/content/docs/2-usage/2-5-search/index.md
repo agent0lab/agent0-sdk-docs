@@ -429,6 +429,10 @@ The default chain is used when:
 
 - You provide an `agentId` without a `chainId` prefix (e.g., `"1234"` instead of `"11155111:1234"`)
 - You call functions without specifying a chain parameter
+
+#### Default chains for `searchAgents()`
+
+If you do **not** set `filters.chains`, `searchAgents()` will query **chain `1` plus the SDK’s default `chainId`**, de-duplicated (so if your SDK is initialized with `chainId=1`, it will only query chain `1` once). This default applies **both** with and without `filters.keyword`.
 ### Agent ID Format
 
 The SDK supports two agent ID formats:
@@ -479,7 +483,7 @@ const results = await sdk.searchAgents({
 // Multiple chains
 const results = await sdk.searchAgents({
   active: true,
-  chains: [1, 11155111]  // Ethereum Mainnet and Ethereum Sepolia
+  chains: [1, 8453, 11155111, 84532, 137]  // Ethereum Mainnet, Base Mainnet, Ethereum Sepolia, Base Sepolia, Polygon Mainnet
 });
 
 // All supported chains

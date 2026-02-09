@@ -9,8 +9,12 @@ This page is the **single source of truth** for which networks are enabled in th
 
 - **Ethereum Mainnet** (Chain ID: `1`)
   - Default (SDK): `https://gateway.thegraph.com/api/7fd2e7d89ce3ef24cd0d4590298f0b2c/subgraphs/id/FV6RR6y13rsnCxBAicKuQEwDp8ioEGiNaWaZUmvr1F8k`
+- **Base Mainnet** (Chain ID: `8453`)
+  - Default (SDK): `https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb`
 - **Ethereum Sepolia** (Chain ID: `11155111`)
   - Default (SDK): `https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT`
+- **Base Sepolia** (Chain ID: `84532`)
+  - Default (SDK): `https://gateway.thegraph.com/api/536c6d8572876cabea4a4ad0fa49aa57/subgraphs/id/4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u`
 - **Polygon Mainnet** (Chain ID: `137`)
   - Default (SDK): `https://gateway.thegraph.com/api/782d61ed390e625b8867995389699b4c/subgraphs/id/9q16PZv1JudvtnCAf44cBoxg82yK9SSsFvrjCY9xnneF`
 
@@ -21,8 +25,6 @@ This page is the **single source of truth** for which networks are enabled in th
 
 ## Coming soon
 
-- Base Sepolia
-- Base Mainnet
 - BNB Chain (Binance)
 - Monad
 - Additional networks

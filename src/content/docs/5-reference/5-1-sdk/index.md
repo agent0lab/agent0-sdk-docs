@@ -158,6 +158,8 @@ const results: AgentSummary[] = await sdk.searchAgents(
 
 **Multi-chain note:** `filters.chains` enables multi-chain execution. Results are returned as a flat `AgentSummary[]` containing agents from all queried chains.
 
+**Default chains:** if you omit `filters.chains`, `searchAgents()` queries **chain `1` plus the SDK’s default `chainId`**, de-duplicated (so chain `1` is never queried twice). This applies **both** with and without `filters.keyword`.
+
 ##### `SearchFilters`
 
 <Tabs>
@@ -273,7 +275,7 @@ export interface SearchFilters {
 
 | Field | Semantics |
 | --- | --- |
-| `chains` | `undefined` uses SDK default chain; list queries those chains; `"all"` queries all configured chains |
+| `chains` | `undefined` queries **chain 1 + SDK default chainId** (de-duplicated); list queries those chains; `"all"` queries all configured chains |
 | `agentIds` | Only these agent IDs (`"chainId:agentId"`) |
 | `name` / `description` | Case-insensitive substring match |
 | `owners` / `operators` | Match agent owner or any operator |

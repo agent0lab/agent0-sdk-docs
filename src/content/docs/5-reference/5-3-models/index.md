@@ -649,7 +649,7 @@ export interface SearchFilters {
 
 | Field | Semantics | Execution |
 | --- | --- | --- |
-| `chains` | `undefined` uses SDK default chain; list queries those chains; `"all"` queries all configured chains | Controls **multi-chain** execution |
+| `chains` | `undefined` queries **chain 1 + SDK default chainId** (de-duplicated); list queries those chains; `"all"` queries all configured chains | Controls **multi-chain** execution |
 | `agentIds` | Only these agent IDs (format `"chainId:agentId"`) | **Pushdown** via `id_in` |
 | `name` / `description` | Case-insensitive substring match | **Pushdown** (`*_contains_nocase` with compatibility fallback) |
 | `owners` / `operators` | Match agent owner or any operator | **Pushdown** (Agent fields) |

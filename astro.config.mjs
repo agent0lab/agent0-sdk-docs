@@ -38,7 +38,8 @@ export default defineConfig({
             { label: "Intro", link: "/" },
             { label: "Key Concepts", link: "/1-welcome/1-2-key-concepts/" },
             { label: "Architecture", link: "/1-welcome/1-3-architecture/" },
-            { label: "ERC-8004", link: "/1-welcome/1-4-erc-8004/" }
+            { label: "ERC-8004", link: "/1-welcome/1-4-erc-8004/" },
+            { label: "Supported Networks", link: "/1-welcome/1-5-supported-networks/" }
           ]
         },
         {

@@ -438,7 +438,9 @@ The SDK supports two agent ID formats:
 ### Supported Networks
 
 - **Ethereum Mainnet** (Chain ID: `1`)
+- **Base Mainnet** (Chain ID: `8453`)
 - **Ethereum Sepolia** (Chain ID: `11155111`)
+- **Base Sepolia** (Chain ID: `84532`)
 - **Polygon Mainnet** (Chain ID: `137`)
 
 Additional networks are planned but not enabled in SDK defaults yet.
@@ -455,7 +457,7 @@ results = sdk.searchAgents(filters={"active": True})
 results = sdk.searchAgents(filters={"chains": [11155111], "active": True})
 
 # Multiple chains
-results = sdk.searchAgents(filters={"chains": [1, 11155111, 137], "active": True})
+results = sdk.searchAgents(filters={"chains": [1, 8453, 11155111, 84532, 137], "active": True})
 
 # All supported chains
 results = sdk.searchAgents(filters={"chains": "all", "active": True})

@@ -62,8 +62,13 @@ The SDK supports two agent ID formats:
 - Example: `"11155111:1234"` means agent ID `1234` on Ethereum Sepolia (chain ID `11155111`)
 #### Supported Chain IDs
 
+- `1` - Ethereum Mainnet
+- `8453` - Base Mainnet
 - `11155111` - Ethereum Sepolia
-  - Additional networks are planned but not enabled in SDK defaults yet.
+- `84532` - Base Sepolia
+- `137` - Polygon Mainnet
+
+- Additional networks are planned but not enabled in SDK defaults yet.
 #### Usage Examples
 
 <Tabs>
